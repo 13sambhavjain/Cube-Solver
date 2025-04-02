@@ -1,18 +1,18 @@
 from copy import copy, deepcopy
 from Colors import *
-
 # colors = [w,r,g,y,o,b]
 # sturcture =   # w
-                # b   o
-                #     y   g
-                #         r
+                # b o
+                  # y g
+                    # r
+
 class Cube():
     colors = [w,b,o,y,g,r]
     directions = [up, right, down, left]
     direction2color = {
         w: {right:o, down:b, left:r, up:g, opp:y},
         y: {right:g, down:r, left:b, up:o, opp:w},
-        r: {right:r, down:b, left:y, up:g, opp:o},
+        r: {right:w, down:b, left:y, up:g, opp:o},
         o: {right:g, down:y, left:b, up:w, opp:r},
         b: {right:o, down:y, left:r, up:w, opp:g},
         g: {right:w, down:r, left:y, up:o, opp:b}
@@ -31,13 +31,26 @@ class Cube():
         right: ('c', -1),
         left: ('c', 0)
     }
+    edgeCoord = {
+        up: (0,1),
+        down: (2, 1),
+        right: (1, 2),
+        left: (1, 0)
+    }
     def __init__(self, rows = 3, cols = 3):
         self.rows = rows
         self.cols = cols
         self.state = {x: [[x for i in range(self.cols)] for j in range(self.rows)] for x in Cube.colors}
         print(self.state)
 
-    def clockwise(self, face):
+    def clockwise(self, face, numberOfTimes = 1):
+        numberOfTimes = numberOfTimes%4
+        if numberOfTimes == 0:
+            return
+        if numberOfTimes == 2:
+            return self.clockwise(face), self.clockwise(face)
+        if numberOfTimes == 3:
+            return self.anticlockwise(face)
         new = deepcopy(self.state)
         # if face == w:
         #     for i in range(3):
@@ -46,62 +59,63 @@ class Cube():
         #         new[g][i][2] = self.state[r][i][2]
         #         new[r][i][2] = self.state[b][0][i]
         #         new[b][0][i] = self.state[o][0][i]
-        if face in Cube.colors:
-            color_index_inOrder_ruld = [
-                # rig =
-                (Cube.direction2color[face][right], Cube.movementDirection2index[Cube.color2direction[Cube.direction2color[face][right]][face]]),
-                # u =
-                (Cube.direction2color[face][up], Cube.movementDirection2index[Cube.color2direction[Cube.direction2color[face][up]][face]]),
-                # lef =
-                (Cube.direction2color[face][left], Cube.movementDirection2index[Cube.color2direction[Cube.direction2color[face][left]][face]]),
-                # d =
-                (Cube.direction2color[face][down], Cube.movementDirection2index[Cube.color2direction[Cube.direction2color[face][down]][face]])
-            ]
-            print(color_index_inOrder_ruld)
-            # rotating face,
-            for i in range(3):
-                for j in range(3):
-                    new[face][i][j] = self.state[face][2-j][i]
-            # changing side faces
-            for i in range(3):
-                for j in range(3):
-                    new[color_index_inOrder_ruld[j][0]][color_index_inOrder_ruld[j][1][1] if color_index_inOrder_ruld[j][1][0] == 'r' else i][color_index_inOrder_ruld[j][1][1] if color_index_inOrder_ruld[j][1][0] == 'c' else i] = self.state[color_index_inOrder_ruld[j+1][0]][color_index_inOrder_ruld[j+1][1][1] if color_index_inOrder_ruld[j+1][1][0] == 'r' else i][color_index_inOrder_ruld[j+1][1][1] if color_index_inOrder_ruld[j+1][1][0] == 'c' else i]
+        color_index_inOrder_ruld = [
+            # rig =
+            (Cube.direction2color[face][right], Cube.movementDirection2index[Cube.color2direction[Cube.direction2color[face][right]][face]]),
+            # u =
+            (Cube.direction2color[face][up], Cube.movementDirection2index[Cube.color2direction[Cube.direction2color[face][up]][face]]),
+            # lef =
+            (Cube.direction2color[face][left], Cube.movementDirection2index[Cube.color2direction[Cube.direction2color[face][left]][face]]),
+            # d =
+            (Cube.direction2color[face][down], Cube.movementDirection2index[Cube.color2direction[Cube.direction2color[face][down]][face]])
+        ]
+        # print(color_index_inOrder_ruld)
+        # rotating face,
+        for i in range(3):
+            for j in range(3):
+                new[face][i][j] = self.state[face][2-j][i]
+        # changing side faces
+        for i in range(3):
+            for j in range(3):
+                new[color_index_inOrder_ruld[j][0]][color_index_inOrder_ruld[j][1][1] if color_index_inOrder_ruld[j][1][0] == 'r' else i][color_index_inOrder_ruld[j][1][1] if color_index_inOrder_ruld[j][1][0] == 'c' else i] = self.state[color_index_inOrder_ruld[j+1][0]][color_index_inOrder_ruld[j+1][1][1] if color_index_inOrder_ruld[j+1][1][0] == 'r' else i][color_index_inOrder_ruld[j+1][1][1] if color_index_inOrder_ruld[j+1][1][0] == 'c' else i]
                 new[color_index_inOrder_ruld[3][0]][color_index_inOrder_ruld[3][1][1] if color_index_inOrder_ruld[3][1][0] == 'r' else i][color_index_inOrder_ruld[3][1][1] if color_index_inOrder_ruld[3][1][0] == 'c' else i] = self.state[color_index_inOrder_ruld[0][0]][color_index_inOrder_ruld[0][1][1] if color_index_inOrder_ruld[0][1][0] == 'r' else i][color_index_inOrder_ruld[0][1][1] if color_index_inOrder_ruld[0][1][0] == 'c' else i]
         self.state = new
+        return face
 
-    def anticlockwise(self, face):
+    def anticlockwise(self, face, numberOfTimes = 1):
+        numberOfTimes = numberOfTimes%4
+        if numberOfTimes == 0:
+            return
+        if numberOfTimes == 2:
+            return self.clockwise(face,2)
+        if numberOfTimes == 3:
+            return self.clockwise(face)
         new = deepcopy(self.state)
-        # if face == w:
-        #     for i in range(3):
-        #         print(id(new[o][0][i]), id(new[o][1][i]))
-        #         new[o][0][i] = self.state[g][i][2]
-        #         new[g][i][2] = self.state[r][i][2]
-        #         new[r][i][2] = self.state[b][0][i]
-        #         new[b][0][i] = self.state[o][0][i]
-        if face in Cube.colors:
-            color_index_inOrder_dlur = [
-                # rig =
-                (Cube.direction2color[face][right], Cube.movementDirection2index[Cube.color2direction[Cube.direction2color[face][right]][face]]),
-                # u =
-                (Cube.direction2color[face][up], Cube.movementDirection2index[Cube.color2direction[Cube.direction2color[face][up]][face]]),
-                # lef =
-                (Cube.direction2color[face][left], Cube.movementDirection2index[Cube.color2direction[Cube.direction2color[face][left]][face]]),
-                # d =
-                (Cube.direction2color[face][down], Cube.movementDirection2index[Cube.color2direction[Cube.direction2color[face][down]][face]])
-            ]
-            color_index_inOrder_dlur.reverse()
-            # rotating face,
-            for i in range(3):
-                for j in range(3):
-                    new[face][i][j] = self.state[face][j][2-i]
+        color_index_inOrder_dlur = [
+            # rig =
+            (Cube.direction2color[face][right], Cube.movementDirection2index[Cube.color2direction[Cube.direction2color[face][right]][face]]),
+            # u =
+            (Cube.direction2color[face][up], Cube.movementDirection2index[Cube.color2direction[Cube.direction2color[face][up]][face]]),
+            # lef =
+            (Cube.direction2color[face][left], Cube.movementDirection2index[Cube.color2direction[Cube.direction2color[face][left]][face]]),
+            # d =
+            (Cube.direction2color[face][down], Cube.movementDirection2index[Cube.color2direction[Cube.direction2color[face][down]][face]])
+        ]
+        color_index_inOrder_dlur.reverse()
+        # rotating face,
+        for i in range(3):
+            for j in range(3):
+                new[face][i][j] = self.state[face][j][2-i]
             # changing side faces
-            for i in range(3):
-                for j in range(3):
-                    new[color_index_inOrder_dlur[j][0]][color_index_inOrder_dlur[j][1][1] if color_index_inOrder_dlur[j][1][0] == 'r' else i][color_index_inOrder_dlur[j][1][1] if color_index_inOrder_dlur[j][1][0] == 'c' else i] = self.state[color_index_inOrder_dlur[j+1][0]][color_index_inOrder_dlur[j+1][1][1] if color_index_inOrder_dlur[j+1][1][0] == 'r' else i][color_index_inOrder_dlur[j+1][1][1] if color_index_inOrder_dlur[j+1][1][0] == 'c' else i]
+        for i in range(3):
+            for j in range(3):
+                new[color_index_inOrder_dlur[j][0]][color_index_inOrder_dlur[j][1][1] if color_index_inOrder_dlur[j][1][0] == 'r' else i][color_index_inOrder_dlur[j][1][1] if color_index_inOrder_dlur[j][1][0] == 'c' else i] = self.state[color_index_inOrder_dlur[j+1][0]][color_index_inOrder_dlur[j+1][1][1] if color_index_inOrder_dlur[j+1][1][0] == 'r' else i][color_index_inOrder_dlur[j+1][1][1] if color_index_inOrder_dlur[j+1][1][0] == 'c' else i]
                 new[color_index_inOrder_dlur[3][0]][color_index_inOrder_dlur[3][1][1] if color_index_inOrder_dlur[3][1][0] == 'r' else i][color_index_inOrder_dlur[3][1][1] if color_index_inOrder_dlur[3][1][0] == 'c' else i] = self.state[color_index_inOrder_dlur[0][0]][color_index_inOrder_dlur[0][1][1] if color_index_inOrder_dlur[0][1][0] == 'r' else i][color_index_inOrder_dlur[0][1][1] if color_index_inOrder_dlur[0][1][0] == 'c' else i]
         self.state = new
+        return face+'`'
 
     def apply(self, front, top, *formulas):
+        moves = []
         rotate = Cube.directions.index(Cube.color2direction[front][top])
         di = {
             'U': Cube.direction2color[front][Cube.directions[rotate]],
@@ -116,13 +130,14 @@ class Cube():
             n = len(formula) - 1
             while i < n:
                 if formula[i+1] in ['`', "'"]:
-                    self.anticlockwise(di[formula[i]])
+                    moves.append(self.anticlockwise(di[formula[i]]))
                     i += 2
                 else:
-                    self.clockwise(di[formula[i]])
+                    moves.append(self.clockwise(di[formula[i]]))
                     i += 1
             if i == n:
-                self.clockwise(di[formula[i]])
+                moves.append(self.clockwise(di[formula[i]]))
+        return tuple(moves)
 
     def __str__(self):
         return str(self.state)
@@ -130,7 +145,7 @@ class Cube():
     @staticmethod
     def get_solved_cube(row, col):
         return {x: [[x for i in range(col)] for j in range(row)] for x in Cube.colors}
-    
+   
     @staticmethod
     def EotherSide(color, i, j):
             # edge
@@ -155,50 +170,99 @@ class Cube():
             raise ValueError
 
 
-    def first_cross(self, first):
+    def first_cross(self, first=w):
         done = []
-        def color_on_top(self, first, i, j):
+        last = Cube.direction2color[first][opp]
+        def color_on_top(i, j):
             if self.state[first][i][j] != first:
                 raise ValueError
             otherSide = Cube.EotherSide(first, i, j)
-            if otherSide[0] == self.state[otherSide[0]][otherSide[1]][otherSide[2]]:
+            otherColor = self.state[otherSide[0]][otherSide[1]][otherSide[2]]
+            if otherSide[0] == otherColor:
                 done.append(Cube.color2direction[first][otherSide[0]])
                 return
-            if len(done) > 0:
-                
+            if len(done) == 0:
+                # rotate color logic
+                fromSide = Cube.color2direction[first][otherSide[0]]
+                toSide = Cube.color2direction[first][otherColor]
+                done.append(toSide)
+                return self.clockwise(first, Cube.directions.index(toSide) - Cube.directions.index(fromSide))
+            else:
+                return self.clockwise(otherSide[0], 2) + color_on_bottom(*Cube.edgeCoord[Cube.color2direction[last][otherSide[0]]])
 
+        def color_on_bottom(i, j):
+            otherSide = self.EotherSide(last, i, j)
+            otherColor = self.state[otherSide[0]][otherSide[1]][otherSide[2]]
+            fromSide = Cube.color2direction[last][otherSide[0]]
+            toSide = Cube.color2direction[last][otherColor]
+            done.append(Cube.color2direction[first][otherSide[0]])
+            return self.clockwise(last, Cube.directions.index(toSide) - Cube.directions.index(fromSide)), self.clockwise(otherColor, 2)
             pass
-        def color_bottom(self):
-            pass
-        def color_side_top(self):
-            pass
-        def color_side_mid(self):
-            pass
-        def color_side_bottom(self):
-            pass
+        def color_on_side(c, i, j):
+            otherSide = Cube.EotherSide(c, i, j)
+            otherColor = self.state[otherSide[0]][otherSide[1]][otherSide[2]]
+            fromSide = Cube.color2direction[first][c]
+            toSide = Cube.color2direction[first][otherColor]
+            rotate = (Cube.directions.index(toSide) - Cube.directions.index(fromSide))%4
+            def color_on_side_top():
+                if rotate == 1:
+                    return self.apply(c,first, 'FR')
+                if rotate == 2:
+                    return self.apply(c,first, 'FURU`')
+                if rotate == 3:
+                    return self.apply(c,first, 'F`R')
+                if rotate == 0:
+                    return self.apply(c,first, 'FU`RU')
+            def color_on_side_mid():
+                pass
+            def color_on_side_bottom():
+                pass    
+            if otherSide[0] == first:
+                return color_on_side_top()
+            elif otherSide[0] == last:
+                return color_on_side_bottom()
+            else:
+                return color_on_side_mid()
+        while len(done) < 4:
+            for c in self.state:
+                for i in range(3):
+                    for j in range(3):
+                        if (i+j)&1 and self.state[c][i][j] == first:
+                            if c == first:
+                                print(color_on_top(i, j))
+                                continue
+                            if c == last:
+                                print(color_on_bottom(i,j))
+                                continue
+                            else:
+                                print(color_on_side(c, i, j))
+                                continue
+        print(done)
 
-    
-    # def move(self, move):
 
-c = Cube()
-# c.apply(o, y, 'FRUR`U`RUR`U`RUR`U`F`')
+# def move(self, move):
+
 # c.clockwise(g)
-c.clockwise(w)
 # c.anticlockwise(w)
 # c.clockwise(w)
 # print(c.otherSide(w, 1, 2))
 # edge = set()
 # opp = set()
 # for color, mat in c.state.items():
-#     for i, j in [(0,1), (1,0), (1, 2), (2,1)]:
-#         x = (color, i, j)
-#         edge.add(x)
-#         y = c.otherSide(*x)
-#         opp.add(y)
-#         print(*x, ': ', y)
-#         if x != c.otherSide(*y):
-#             print("Something is wrong here")
-            
+# for i, j in [(0,1), (1,0), (1, 2), (2,1)]:
+# x = (color, i, j)
+# edge.add(x)
+# y = c.otherSide(*x)
+# opp.add(y)
+# print(*x, ': ', y)
+# if x != c.otherSide(*y):
+# print("Something is wrong here")
+c = Cube()
+c.clockwise(r)
+c.clockwise(b)
+c.first_cross()
+# c.apply(o, y, 'RUR`URUUR`'*6)
+
 print(c)
 # if edge == opp:
-#     print("Ya seems equal")
+# print("Ya seems equal")
