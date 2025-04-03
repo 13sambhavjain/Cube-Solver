@@ -1,4 +1,5 @@
 from copy import copy, deepcopy
+import random
 from Colors import *
 # colors = [w,r,g,y,o,b]
 # sturcture =   # w
@@ -41,7 +42,7 @@ class Cube():
         self.rows = rows
         self.cols = cols
         self.state = {x: [[x for i in range(self.cols)] for j in range(self.rows)] for x in Cube.colors}
-        print(self.state)
+        # print(self.state)
 
     def first_cross(self, first=w):
         done = set()
@@ -133,17 +134,14 @@ class Cube():
             for i in range(3):
                 for j in range(3):
                     if (i+j)&1 and self.state[c][i][j] == first:
-                        print(c, i, j)
+                        # print(c, i, j)
                         if c == first:
-                            print(color_on_top(i, j))
-                            continue
-                        if c == last:
-                            print(color_on_bottom(i,j))
-                            continue
+                            color_on_top(i, j)
+                        elif c == last:
+                            color_on_bottom(i,j)
                         else:
-                            print(color_on_side(c, i, j))
-                            continue
-        print(done)
+                            color_on_side(c, i, j)
+        # print(done)
 
     def clockwise(self, face, numberOfTimes = 1):
         numberOfTimes = numberOfTimes%4
@@ -215,6 +213,16 @@ class Cube():
                 new[color_index_inOrder_dlur[3][0]][color_index_inOrder_dlur[3][1][1] if color_index_inOrder_dlur[3][1][0] == 'r' else i][color_index_inOrder_dlur[3][1][1] if color_index_inOrder_dlur[3][1][0] == 'c' else i] = self.state[color_index_inOrder_dlur[0][0]][color_index_inOrder_dlur[0][1][1] if color_index_inOrder_dlur[0][1][0] == 'r' else i][color_index_inOrder_dlur[0][1][1] if color_index_inOrder_dlur[0][1][0] == 'c' else i]
         self.state = new
         return face+'`'
+    
+    def scramble(self, sequence):
+        return self.apply(g,w, sequence)
+    
+    def randomScramble(self, limit = 10):
+        moves = []
+        for _ in range(limit):
+            moves.append(self.clockwise(random.choice(Cube.colors), 1 + random.randint(0,1)*2))
+        return moves
+
 
     def apply(self, front, top, *formulas):
         moves = []
@@ -292,8 +300,27 @@ class Cube():
 # if x != c.otherSide(*y):
 # print("Something is wrong here")
 c = Cube()
-c.apply(g,w, 'RUR`UR`U`LLU`')
-c.first_cross()
+# print(c.randomScramble())
+# c.first_cross()
+
+
+
+# test white cross
+count = 0
+for _ in range(1000):
+    c = Cube()
+    scram = c.randomScramble()
+    co = w
+    c.first_cross(co)
+    ll = [(0,1), (1, 0), (1, 2), (2, 1)]
+    for i, j in ll:
+        if c.state[co][i][j] != co:
+            print(scram)
+            count += 1
+
+
+print(count)
+
 # c.apply(o, y, 'RUR`URUUR`'*6)
 
 print(c)
