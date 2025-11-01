@@ -8,8 +8,10 @@ from Colors import *
                     # r
  
 class Cube():
+
     colors = [w,b,o,y,g,r]
     directions = [up, right, down, left]
+
     direction2color = {
         w: {right:o, down:b, left:r, up:g, opp:y},
         y: {right:g, down:r, left:b, up:o, opp:w},
@@ -38,115 +40,28 @@ class Cube():
         right: (1, 2),
         left: (1, 0)
     }
-    def solved(self, rows = 3, cols = 3) -> bool:
-        if self.state == {x: [[x for i in range(self.cols)] for j in range(self.rows)] for x in Cube.colors}:
-            return True
-        else:
-            return False
-    def __init__(self, rows = 3, cols = 3):
-        self.rows = rows
-        self.cols = cols
-        self.state = {x: [[x for i in range(self.cols)] for j in range(self.rows)] for x in Cube.colors}
-        # print(self.state)
- 
-    def first_cross(demoself, first=w):
-        self = deepcopy(demoself)
-        done = set()
-        last = Cube.direction2color[first][opp]
-        def color_on_top(i, j):
-            if self.state[first][i][j] != first:
-                raise ValueError
-            otherSide = Cube.EotherSide(first, i, j)
-            otherColor = self.state[otherSide[0]][otherSide[1]][otherSide[2]]
-            if otherSide[0] == otherColor:
-                done.add(otherColor)
-                return
-            if len(done) == 0:
-                # rotate color logic
-                fromSide = Cube.color2direction[first][otherSide[0]]
-                toSide = Cube.color2direction[first][otherColor]
-                done.add(otherColor)
-                return self.clockwise(first, Cube.directions.index(toSide) - Cube.directions.index(fromSide))
-            else:
-                return self.clockwise(otherSide[0], 2) + color_on_bottom(*Cube.edgeCoord[Cube.color2direction[last][otherSide[0]]]) 
-        def color_on_bottom(i, j):
-            otherSide = self.EotherSide(last, i, j)
-            otherColor = self.state[otherSide[0]][otherSide[1]][otherSide[2]]
-            fromSide = Cube.color2direction[last][otherSide[0]]
-            toSide = Cube.color2direction[last][otherColor]
-            done.add(otherColor)
-            return self.clockwise(last, Cube.directions.index(toSide) - Cube.directions.index(fromSide)), self.clockwise(otherColor, 2)
-            pass
-        def color_on_side(c, i, j):
-            otherSide = Cube.EotherSide(c, i, j)
-            otherColor = self.state[otherSide[0]][otherSide[1]][otherSide[2]]
-            def color_on_side_top():
-                fromSide = Cube.color2direction[first][c]
-                toSide = Cube.color2direction[first][otherColor]
-                rotate = (Cube.directions.index(toSide) - Cube.directions.index(fromSide))
-                rotate %= 4 # rotating first for fromSide to reach toSide
-                done.add(otherColor)
-                if rotate == 3:
-                    return self.apply(c,first, 'FR')
-                if rotate == 2:
-                    return self.apply(c,first, 'FURU`')
-                if rotate == 1:
-                    return self.apply(c,first, 'F`L`')
-                if rotate == 0:
-                    return self.apply(c,first, 'FU`RU')
-            def color_on_side_mid():
-                fromSide = Cube.color2direction[first][otherColor]
-                toSide = Cube.color2direction[first][otherSide[0]]
-                r1 = (Cube.directions.index(toSide) - Cube.directions.index(fromSide))
-                otherFrom = Cube.color2direction[otherSide[0]][c]
-                otherTo = Cube.color2direction[otherSide[0]][first]
-                r2 = (Cube.directions.index(otherTo) - Cube.directions.index(otherFrom))
-                done.add(otherColor)
-                return self.clockwise(first, r1), self.clockwise(otherSide[0], r2), self.anticlockwise(first, r1)
-            def color_on_side_bottom():
-                # fromSide = Cube.color2direction[first][otherColor]
-                moves = None
-                if otherColor == c:
-                    return self.apply(c, first, 'F`U`RU')
-                if otherColor == Cube.direction2color[c][opp]:
-                    moves = self.apply(c, first, 'F`URU`')
-                    if c in done:
-                        moves.append(self.clockwise(c))
-                    return moves
-                fromSide = Cube.color2direction[c][last]
-                toSide = Cube.color2direction[c][otherColor]
-                rotate = (Cube.directions.index(toSide) - Cube.directions.index(fromSide))%4
-                fromSide1 = Cube.color2direction[otherColor][c]
-                toSide1 = Cube.color2direction[otherColor][first]
-                rotate1 = (Cube.directions.index(toSide1) - Cube.directions.index(fromSide1))%4
-                moves = [
-                    self.clockwise(c, rotate),
-                    self.clockwise(otherColor, rotate1)
-                ]
-                if c in done:
-                    moves.append(self.clockwise(c, rotate))
-                return moves
- 
-            if otherSide[0] == first:
-                return color_on_side_top()
-            elif otherSide[0] == last:
-                return color_on_side_bottom()
-            else:
-                return color_on_side_mid()
-        # while len(done) < 4:
-        for c in self.state:
-            for i in range(3):
-                for j in range(3):
-                    if (i+j)&1 and self.state[c][i][j] == first:
-                        # print(c, i, j)
-                        if c == first:
-                            color_on_top(i, j)
-                        elif c == last:
-                            color_on_bottom(i,j)
-                        else:
-                            color_on_side(c, i, j)
-        # print(done)
- 
+
+    cornerCoord = [(0, 0), (0, 2), (2, 2), (2, 0)]
+    
+    def __init__(self, size:int = 3, printState: bool=False):
+        self.size = size
+        self.state = Cube.getSolvedState(self.size)
+        if printState:
+            print(self.state)
+
+    @staticmethod
+    def getSolvedState(size:int = 3) -> dict[Face,list[list[Color]]]:
+        return {
+            x: [
+                [x for i in range(size)]
+                for j in range(size)
+            ] 
+            for x in Cube.colors
+        }
+    
+    def isSolved(self) -> bool:
+        return self.state == Cube.getSolvedState(self.size)
+        
     def clockwise(self, face, numberOfTimes = 1):
         numberOfTimes = numberOfTimes%4
         if numberOfTimes == 0:
