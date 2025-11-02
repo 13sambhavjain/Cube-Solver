@@ -9,8 +9,8 @@ from Colors import *
  
 class Cube():
 
-    colors = [w,b,o,y,g,r]
-    directions = [up, right, down, left]
+    colors = Colors
+    directions = SideDirections
 
     direction2color = {
         w: {right:o, down:b, left:r, up:g, opp:y},

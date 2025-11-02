@@ -1,62 +1,51 @@
 from enum import StrEnum, auto
 
 class Color(StrEnum):
-    red = auto()
-    blue = auto()
-    green = auto()
-    yellow = auto()
     white = auto()
+    blue = auto()
     orange = auto()
+    yellow = auto()
+    green = auto()
+    red = auto()
 
-class Direction(StrEnum):
-    front = auto()
-    back = auto()
-    left = auto()
-    right = auto()
-    up = auto()
-    down = auto()
+class Colors():
+    _colors = list(Color)
+    def __iter__(self):
+        """Allow iteration: for color in Colors"""
+        return iter(self._colors)
+
+    def __getitem__(self, index: int) -> Color:
+        """Allow cyclic indexing: Colors[n] wraps around."""
+        return self._colors[index % len(self._colors)]
+    
+    def __contains__(self, color: Color) -> bool:
+        return color in self._colors
+
+    def __len__(self):
+        """Number of colors."""
+        return len(self._colors)
+
+    def index(self, color: Color) -> int:
+        """Return the index of a given color."""
+        return self._colors.index(color)
+
+    def next(self, color: Color) -> Color:
+        """Return the next color cyclically."""
+        i = self.index(color)
+        return self[(i + 1) % len(self)]
+
+    def prev(self, color: Color) -> Color:
+        """Return the previous color cyclically."""
+        i = self.index(color)
+        return self[(i - 1) % len(self)]
+
+    def __repr__(self):
+        return f"Colors({', '.join(c.name for c in self._colors)})"
+
+
 
 Face = Color
 
-class Move():
-    def __init__(self, face: Face, numberOfturns: int=1):
-        self.face: Face = face
-        self.turns: int = numberOfturns%4
-        
-    def __str__(self) -> str:
-        face_letter = self.face.name[0].upper()
-        match self.turns:
-            case 0:
-                return ""
-            case 1:
-                return f'{face_letter}'
-            case 2:
-                return f'{face_letter}\u00b2'
-            case 3:
-                return f'{face_letter}`'
-            case _:
-                self.turns %= 4
-                return self.__str__()
-    
-    def __repr__(self):
-        return f'Move(face={self.face}, turns={self.turns})'
-
-
-w = Color.white
-b = Color.blue
-y = Color.yellow
-g = Color.green
-o = Color.orange
-r = Color.red
-
-right = Direction.right
-left = Direction.left
-up = Direction.up
-down = Direction.down
-opp = Direction.back
-
-m = Move(w)
-print(m)
 
 # w = 'white
 # b = 'blue'

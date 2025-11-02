@@ -1,6 +1,6 @@
 from copy import copy, deepcopy
 import random
-from Colors import *
+from old_Colors import *
 # colors = [w,r,g,y,o,b]
 # sturcture =   # w
                 # b o
@@ -630,11 +630,11 @@ def CorrectSolForScramble(scramble):
 # CorrectSolForScramble(scramble)
 
 
-for c in Cube.colors:
-    for i, j in Cube.cornerCoord:
-        # print(Cube.CotherSide(c,i,j))
-        for r1 in Cube.colors:
-            k = Cube.cornerAfterRotation((c, i, j), r1)
-            if k != (c, i, j):
-                print((c, i, j), r1, k)
+# for c in Cube.colors:
+#     for i, j in Cube.cornerCoord:
+#         # print(Cube.CotherSide(c,i,j))
+#         for r1 in Cube.colors:
+#             k = Cube.cornerAfterRotation((c, i, j), r1)
+#             if k != (c, i, j):
+#                 print((c, i, j), r1, k)
 
