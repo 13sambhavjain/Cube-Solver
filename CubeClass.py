@@ -1,6 +1,8 @@
 from copy import copy, deepcopy
 import random
-from Colors import *
+from Colors import Colors, Color, Face
+from Directions import SideDirections, Direction
+from old_Colors import *
 # colors = [w,r,g,y,o,b]
 # sturcture =   # w
                 # b o
