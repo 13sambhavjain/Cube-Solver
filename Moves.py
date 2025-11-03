@@ -1,4 +1,4 @@
-from Colors import Face
+from Colors import Color, Colors, Face
 
 class Move():
     def __init__(self, face: Face, numberOfturns: int=1):

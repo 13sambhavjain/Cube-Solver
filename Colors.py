@@ -9,7 +9,7 @@ class Color(StrEnum):
     red = auto()
 
 class Colors():
-    _colors = list(Color)
+    _colors = [Color.white, Color.blue, Color.orange, Color.yellow, Color.green, Color.red]
     def __iter__(self):
         """Allow iteration: for color in Colors"""
         return iter(self._colors)
