@@ -1,6 +1,7 @@
 from copy import copy, deepcopy
 import random
-from Colors import Colors, Color, Face
+from Colors import Colors, Color
+from Face import Face
 from Directions import SideDirections, Direction
 from old_Colors import *
 # colors = [w,r,g,y,o,b]
@@ -11,10 +12,10 @@ from old_Colors import *
  
 class Cube():
 
-    colors = Colors
-    directions = SideDirections
+    colors = Colors() # [w, b, r, g, y, o] -  with some cyclic Functionalities
+    directions = SideDirections() # [up, right, down, left] - with some cyclic Functionalities
 
-    direction2color = {
+    direction2color: dict[Color, dict[Direction, Color]] = { # mapping SideDirection to Face center color
         w: {right:o, down:b, left:r, up:g, opp:y},
         y: {right:g, down:r, left:b, up:o, opp:w},
         r: {right:w, down:b, left:y, up:g, opp:o},
@@ -22,7 +23,7 @@ class Cube():
         b: {right:o, down:y, left:r, up:w, opp:g},
         g: {right:w, down:r, left:y, up:o, opp:b}
     }
-    color2direction = {
+    color2direction: dict[Color, dict[Color, Direction]] = { # mapping Face center color to SideDirection
         w: {o:right, b:down, r:left, g:up, y:opp},
         y: {g:right, r:down, b:left, o:up, w:opp},
         r: {w:right, b:down, y:left, g:up, o:opp},
@@ -30,38 +31,40 @@ class Cube():
         b: {o:right, y:down, r:left, w:up, g:opp},
         g: {w:right, r:down, y:left, o:up, b:opp}
     }
-    movementDirection2index = {
+    movementDirection2index: dict[Direction, tuple[str, int]] = { # mapping movement of SideDirection to row/column index
         up: ('r', 0),
         down: ('r', -1),
         right: ('c', -1),
         left: ('c', 0)
     }
-    edgeCoord = {
+    edgeCoord: dict[Direction, tuple[int, int]] = { # Coordinate of edges in a face grid of 3x3 Cube
         up: (0,1),
         down: (2, 1),
         right: (1, 2),
         left: (1, 0)
     }
 
-    cornerCoord = [(0, 0), (0, 2), (2, 2), (2, 0)]
+    cornerCoord: list[tuple[int, int]] = [ # Coordinates of corners in a face grid of a Cube
+        (0, 0), (0, 2), (2, 2), (2, 0)
+    ] 
     
     def __init__(self, size:int = 3, printState: bool=False):
-        self.size = size
-        self.state = Cube.getSolvedState(self.size)
+        """Initialize a Cube(Solved) of given size."""
+        self.size: int = size
+        self.state: dict[Color, Face] = Cube.getSolvedState(self.size)
         if printState:
             print(self.state)
 
     @staticmethod
-    def getSolvedState(size:int = 3) -> dict[Face,list[list[Color]]]:
+    def getSolvedState(size:int = 3) -> dict[Color, Face]:
+        """Return the solved state of a Cube of given size."""
         return {
-            x: [
-                [x for i in range(size)]
-                for j in range(size)
-            ] 
-            for x in Cube.colors
+            color: Face(color, size)
+            for color in Cube.colors
         }
     
     def isSolved(self) -> bool:
+        """Check if the Cube is in solved state."""
         return self.state == Cube.getSolvedState(self.size)
         
     def clockwise(self, face, numberOfTimes = 1):
