@@ -37,12 +37,6 @@ class Cube():
         right: ('c', -1),
         left: ('c', 0)
     }
-    edgeCoord: dict[Direction, tuple[int, int]] = { # Coordinate of edges in a face grid of 3x3 Cube
-        up: (0,1),
-        down: (2, 1),
-        right: (1, 2),
-        left: (1, 0)
-    }
 
     cornerCoord: list[tuple[int, int]] = [ # Coordinates of corners in a face grid of a Cube
         (0, 0), (0, 2), (2, 2), (2, 0)
