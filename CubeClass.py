@@ -4,17 +4,15 @@ from Colors import Colors, Color
 from Face import Face
 from Directions import SideDirections, Direction
 from old_Colors import *
-# colors = [w,r,g,y,o,b]
-# sturcture =   # w
-                # b o
-                  # y g
-                    # r
- 
-class Cube():
 
+class CubeStructure():
+    # colors = [w,r,g,y,o,b]
+    # sturcture =   # w
+                    # b o
+                    # y g
+                        # r
     colors = Colors() # [w, b, r, g, y, o] -  with some cyclic Functionalities
     directions = SideDirections() # [up, right, down, left] - with some cyclic Functionalities
-
     direction2color: dict[Color, dict[Direction, Color]] = { # mapping SideDirection to Face center color
         w: {right:o, down:b, left:r, up:g, opp:y},
         y: {right:g, down:r, left:b, up:o, opp:w},
@@ -31,23 +29,32 @@ class Cube():
         b: {o:right, y:down, r:left, w:up, g:opp},
         g: {w:right, r:down, y:left, o:up, b:opp}
     }
-    movementDirection2index: dict[Direction, tuple[str, int]] = { # mapping movement of SideDirection to row/column index
-        up: ('r', 0),
-        down: ('r', -1),
-        right: ('c', -1),
-        left: ('c', 0)
-    }
 
-    cornerCoord: list[tuple[int, int]] = [ # Coordinates of corners in a face grid of a Cube
-        (0, 0), (0, 2), (2, 2), (2, 0)
-    ] 
-    
+class Cube(CubeStructure):
+    """Class(Structur and functions) of a 3x3 Rubick's Cube"""
     def __init__(self, size:int = 3, printState: bool=False):
         """Initialize a Cube(Solved) of given size."""
         self.size: int = size
         self.state: dict[Color, Face] = Cube.getSolvedState(self.size)
         if printState:
             print(self.state)
+
+    
+    movementDirection2index: dict[Direction, tuple[str, int]] = { # mapping movement of SideDirection to row/column index
+        up: ('r', 0),
+        down: ('r', -1),
+        right: ('c', -1),
+        left: ('c', 0)
+    }
+    sideDirection2edgeCoord: dict[Direction, tuple[int, int]] = { # Coordinate of edges in a face grid of 3x3 Cube
+        up: (0,1),
+        down: (2, 1),
+        right: (1, 2),
+        left: (1, 0)
+    }
+    cornerCoord: list[tuple[int, int]] = [
+        (0, 0), (0, 2), (2, 2), (2, 0)
+    ]
 
     @staticmethod
     def getSolvedState(size:int = 3) -> dict[Color, Face]:
@@ -57,10 +64,32 @@ class Cube():
             for color in Cube.colors
         }
     
+    @staticmethod
+    def BackEdgeCoords(i: int, j: int) -> tuple[int, int]:
+        """Given edge coordinates (i, j)(front), return the opposite(back) edge coordinates."""
+        # implement edge check
+        if (i+j) == 3:
+            return i-1, j-1
+        else: #if edge then i+j == 1
+            return i+1, j+1
+
+    @staticmethod
+    def EdgeOtherSide(color, i, j):
+        """Given coords of one side of an edge piece, 
+        return the coords of the other side of that edge piece."""       
+        ind = int(Cube.colors.index(color))
+        k = (3 - (i + j))//2
+        if (i + j)&1:
+            # edges
+            return Cube.colors[(ind + 1 + k*3 + ((ind + (i&1))&1))%6], k + (ind&1), k + ((ind + 1)&1)
+        else:
+            raise ValueError
+
+        
     def isSolved(self) -> bool:
         """Check if the Cube is in solved state."""
         return self.state == Cube.getSolvedState(self.size)
-        
+    
     def clockwise(self, face, numberOfTimes = 1):
         numberOfTimes = numberOfTimes%4
         if numberOfTimes == 0:
