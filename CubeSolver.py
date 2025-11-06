@@ -40,8 +40,9 @@ class Cube():
         right: (1, 2),
         left: (1, 0)
     }
-
-    cornerCoord = [(0, 0), (0, 2), (2, 2), (2, 0)]
+    cornerCoord = [
+        (0, 0), (0, 2), (2, 2), (2, 0)
+    ]
     
     def __init__(self, rows = 3, cols = 3, printState=False):
         self.rows = rows
@@ -370,7 +371,7 @@ class Cube():
                 moves.append(self.clockwise(di[formula[i]]))
         return moves
    
-    def scramble(self, sequence):
+    def applyScramble(self, sequence):
         return self.apply(g, w, sequence)
 
     def random(self, limit=10):
