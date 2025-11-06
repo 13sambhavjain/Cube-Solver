@@ -4,40 +4,10 @@ from Colors import Color, Colors
 from old_Colors import *
 from copy import deepcopy
 
-class Cube3x3(Cube):
-    sideDirection2edgeCoord: dict[Direction, tuple[int, int]] = { # Coordinate of edges in a face grid of 3x3 Cube
-        up: (0,1),
-        down: (2, 1),
-        right: (1, 2),
-        left: (1, 0)
-    }
-    cornerCoord: list[tuple[int, int]] = [
-        (0, 0), (0, 2), (2, 2), (2, 0)
-    ]
 
-    def __init__(self, printState: bool=False):
-        super().__init__(size=3, printState=printState)
+class Solver(Cube):
 
-    @staticmethod
-    def BackEdgeCoords(i: int, j: int) -> tuple[int, int]:
-        """Given edge coordinates (i, j)(front), return the opposite(back) edge coordinates."""
-        # implement edge check
-        if (i+j) == 3:
-            return i-1, j-1
-        else: #if edge then i+j == 1
-            return i+1, j+1
-
-    @staticmethod
-    def EdgeOtherSide(color, i, j):
-        """Given coords of one side of an edge piece, 
-        return the coords of the other side of that edge piece."""       
-        ind = int(Cube.colors.index(color))
-        k = (3 - (i + j))//2
-        if (i + j)&1:
-            # edges
-            return Cube.colors[(ind + 1 + k*3 + ((ind + (i&1))&1))%6], k + (ind&1), k + ((ind + 1)&1)
-        else:
-            raise ValueError
+    
         
     def clockwise(self, face, numberOfTimes = 1):
         numberOfTimes = numberOfTimes%4
@@ -134,3 +104,5 @@ class Cube3x3(Cube):
             if i == n:
                 moves.append(self.clockwise(di[formula[i]]))
         return moves
+
+
