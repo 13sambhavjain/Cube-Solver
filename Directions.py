@@ -7,6 +7,9 @@ class Direction(StrEnum):
     right = auto()
     up = auto()
     down = auto()
+    def __repr__(self):
+        # Returns a string that looks like "Direction.<DirectionName>"
+        return f"{self.__class__.__name__}.{self.name}"
 
 class SideDirections():
     """A collection of Side Directions with cyclic indexing and iteration."""
@@ -18,6 +21,14 @@ class SideDirections():
         if cls._instance is None:
             cls._instance = super(SideDirections, cls).__new__(cls)
         return cls._instance
+    
+    def __init__(self, *args, **kwargs):
+        """
+        Flexible initializer that accepts any arguments.
+        It doesn't actually use args/kwargs for anything in this specific setup,
+        but it makes the class definition resilient to being called with arguments.
+        """
+        pass
     
     def __iter__(self):
         """Allow iteration: for direction in SideDirections"""
@@ -59,11 +70,12 @@ class SideDirections():
     
     def __repr__(self):
         """Official string representation of the SideDirections collection."""
-        return f'SideDirections(_sideDirections={self._sideDirections}, _instance={object.__repr__(self._instance) if self._instance else None})'
+        return f'SideDirections(_sideDirections={self._sideDirections})'
 
 
 if __name__ == "__main__":
-    # colors = SideDirections()
+    colors = SideDirections()
+    print(repr(colors))
     # print(colors[0])
     # for color in colors:
     #     print(color)
