@@ -1,3 +1,27 @@
 {
-    "python-envs.pythonProjects": []
+  "python-envs.pythonProjects": [],
+  // --- Python Environment ---
+  "python.defaultInterpreterPath": ".venv/bin/python",  // (".venv\\Scripts\\python.exe" on Windows)
+
+  // --- Linters ---
+  "python.linting.enabled": true,
+  "python.linting.flake8Enabled": true,
+  "python.linting.pylintEnabled": true,
+
+  // --- Type checker (MyPy) ---
+  "python.analysis.typeCheckingMode": "off", // disable VS Code's built-in checker
+  "mypy.enabled": true,
+  "mypy.runUsingActiveInterpreter": true,
+
+  // Optional: show which tool produced each warning
+  "python.analysis.diagnosticSeverityOverrides": {
+    "reportMissingTypeStubs": "none"
+  },
+
+  // Make Problems panel show different icons/colors per tool
+  "workbench.colorCustomizations": {
+    "editorWarning.foreground": "#FFAA00",  // Flake8 / PEP8
+    "editorInfo.foreground": "#00BFFF",     // MyPy info
+    "editorError.foreground": "#FF3333"     // Pylint / errors
+  }
 }

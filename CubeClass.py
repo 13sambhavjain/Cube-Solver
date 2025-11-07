@@ -11,6 +11,7 @@ class CubeStructure():
                     # b o
                     # y g
                         # r
+
     colors = Colors() # [w, b, r, g, y, o] -  with some cyclic Functionalities
     directions = SideDirections() # [up, right, down, left] - with some cyclic Functionalities
     direction2color: dict[Color, dict[Direction, Color]] = { # mapping SideDirection to Face center color
@@ -60,7 +61,7 @@ class Cube(CubeStructure):
     def getSolvedState(size:int = 3) -> dict[Color, Face]:
         """Return the solved state of a Cube of given size."""
         return {
-            color: Face(color, size)
+            color: Face(size, color)
             for color in Cube.colors
         }
     

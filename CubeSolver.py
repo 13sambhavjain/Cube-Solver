@@ -188,7 +188,9 @@ class Cube():
                 elif (i1-i2)%4 != 3:
                     raise Exception (f'{otherColor1}, {otherColor2} and {first} dont share a corner.')
                 
-                return [self.clockwise(faceToRotate), self.clockwise(last), self.anticlockwise(faceToRotate)]
+                
+                shiftsTo = Cube.cornerAfterRotation(Cube.cornerAfterRotation((first, i, j), faceToRotate), last)
+                return [self.clockwise(faceToRotate), self.clockwise(last), self.anticlockwise(faceToRotate)] + color_on_side(*shiftsTo)
                 # Just removes corner from the first face, and puts it on the desired row (side bottom)
         def color_on_bottom(i, j):
             otherSide = self.EotherSide(last, i, j)
@@ -422,21 +424,18 @@ class Cube():
 
     @staticmethod
     def cornerAfterRotation(coords, rotatingFace, check=True):
-        try:
-            if check:
-                other1, other2 = Cube.CotherSide(*coords)
-                if rotatingFace not in (other1[0], other2[0]):
-                    return coords
-            c,i,j = coords
-            newFace = Cube.direction2color[rotatingFace][Cube.directions[Cube.directions.index(Cube.color2direction[rotatingFace][c]) - 3]]
-            increment = (Cube.directions.index(Cube.color2direction[c][newFace]) - Cube.directions.index(Cube.color2direction[newFace][c]))%4
-            if increment == 2:
-                return newFace, i, j
-            else:
-                return newFace, *Cube.cornerCoord[(Cube.cornerCoord.index((i,j)) + increment)%4]
-        except Exception as e:
-            print(e)
-            print(locals())
+        if check:
+            other1, other2 = Cube.CotherSide(*coords)
+            if rotatingFace not in (other1[0], other2[0]):
+                return coords
+        c,i,j = coords
+        newFace = Cube.direction2color[rotatingFace][Cube.directions[Cube.directions.index(Cube.color2direction[rotatingFace][c]) - 3]]
+        increment = (Cube.directions.index(Cube.color2direction[c][newFace]) - Cube.directions.index(Cube.color2direction[newFace][c]))%4
+        if increment == 2:
+            return newFace, i, j
+        else:
+            return newFace, *Cube.cornerCoord[(Cube.cornerCoord.index((i,j)) + increment)%4]
+
             
     
     @staticmethod

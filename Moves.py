@@ -1,9 +1,9 @@
 from Colors import Color, Colors, Face
 
 class Move():
-    def __init__(self, face: Face, numberOfturns: int=1):
+    def __init__(self, face: Face, turns: int=1):
         self.face: Face = face
-        self._turns: int = numberOfturns%4
+        self._turns: int = turns%4
     
     @property
     def turns(self) -> int:
@@ -27,7 +27,7 @@ class Move():
                 raise ValueError(f"Invalid number of turns, {self.__repr__()}")
     
     def __repr__(self):
-        return f'Move(face={self.face}, turns={self.turns})'
+        return f'{self.__class__.__name__}(face={self.face!r}, turns={self.turns!r})'
     
     def __bool__(self) -> bool:
         return self.turns != 0
@@ -53,7 +53,7 @@ class Moves():
         return ' '.join(str(move) for move in self.moves)
     
     def __repr__(self):
-        return f'Moves(moves={self.moves})'
+        return f'{self.__class__.__name__}({', '.join(f'{k}={v!r}' for k, v in vars(self).items())})'
     
     def append(self, move: Move):
         if not move:
