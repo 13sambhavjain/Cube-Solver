@@ -2,22 +2,22 @@ from Colors import Color
 import copy, warnings
 
 class Face:
-    def __init__(self, size: int=3, faceCenter: Color = None, grid: list[list[Color]] = None):
-        """Initializes a Face object. Requires either a faceCenter color (to generate a new grid)
+    def __init__(self, size: int=3, fill_color: Color = None, grid: list[list[Color]] = None):
+        """Initializes a Face object. Requires either a fill_color color (to generate a new grid)
         OR an existing grid to load from."""
         #Validation and Warnings---
-        if (faceCenter is None) == (grid is None):
+        if (fill_color is None) == (grid is None):
             # If neither OR both are None
-            if faceCenter is not None: # Means both are NOT None (both are provided)
-                 warnings.warn(..., stacklevel=2) # Warning case
+            if fill_color is not None: # Means both are NOT None (both are provided)
+                warnings.warn("Both fill_color and grid are provided. Using grid.",UserWarning, stacklevel=2) # Warning case
             else: # Means both ARE None (neither provided)
-                 raise ValueError(...) # Error case
-        
+                raise ValueError("Either fill_color or grid must be provided.") # Error case
+
         # Initialization Logic uses grid on higher priority---
         if grid is not None:
             self.grid = copy.deepcopy(grid)
         else:
-            self.grid = [[faceCenter for _ in range(size)] for _ in range(size)]
+            self.grid = [[fill_color for _ in range(size)] for _ in range(size)]
             
         self._size = size
             
@@ -73,10 +73,8 @@ class Face:
             return self.grid.__contains__(color)
     
     def solved(self) -> bool:
-        if self:
-            first_color: Color = self.grid[0][0]
-            return all(first_color == color for row in self.grid for color in row)
-        raise ValueError(f'Face doesn\'t exist. {self.__repr__()}')
+        first_color: Color = self.grid[0][0]
+        return all(first_color == color for row in self.grid for color in row)
     
     def __bool__(self) -> bool:
         return bool(self.grid)
@@ -85,21 +83,34 @@ class Face:
         """
         Reversible representation assuming standard construction.
         """
-        # We output faceCenter and size, matching the constructor signature.
+        # We output fill_color and size, matching the constructor signature.
         # We omit grid as it's generated automatically by __init__.
-        return f'{self.__class__.__name__}'
+        return f'{self.__class__.__name__}(size={self.size!r}, grid={self.grid!r})'
+    
+FaceId = Color
     
 class Position():
     """Postion on a Face"""
     def __init__(self, x: int, y: int):
-        self.x = x
-        self.y = y
+        self.x: int = x
+        self.y: int = y
 
     def __getitem__(self, index: int) -> int:
         index %= 2
         if index==1:
             return self.y
         return self.x
+
+    def __setitem__(self, index: int, value: int) -> None:
+        index %= 2
+        if index==1:
+            self.y = value
+        else:
+            self.x = value
+    
+    def __iter__(self):
+        yield self.x
+        yield self.y
     
     def __str__(self) -> str:
         return f'({self.x}, {self.y})'
@@ -107,11 +118,11 @@ class Position():
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}({', '.join(f'{k}={v!r}' for k, v in vars(self).items())})'    
     
-class Coord():
-    """Coordinates of a Color in a Cube with fix center"""
-    def __init__(self, faceCenter: Color, x: int, y: int):
-        self.faceCenter = faceCenter
-        self.pos = Position(x, y)
+class Coords():
+    # """Coordinates of a Color in a Cube with fix center"""
+    def __init__(self, face_id: FaceId, x: int, y: int):
+        self.face_id: FaceId = face_id
+        self.pos: Position = Position(x, y)
 
     @property
     def x(self) -> int:
@@ -127,21 +138,33 @@ class Coord():
     def y(self, value: int):
         self.pos.y = value
 
-    def __getitem__(self, index: int) -> int:
+    def __iter__(self):
+        yield self.face_id
+        yield self.x
+        yield self.y
+
+    def __getitem__(self, index: int) -> FaceId|int:
         index %= 3
-        match index:
-            case 0:
-                return self.faceCenter
-            case 1:
-                return self.x
-            case 2:
-                return self.y
-        raise Exception(f'For unknown reason match case failed here. {self.__repr__()}')
+        if index == 0:
+            return self.face_id
+        elif index == 1:
+            return self.x
+        else: # index == 2
+            return self.y
 
+    def __setitem__(self, index: int, value: FaceId|int) -> None:
+        index %= 3
+        if index == 0:
+            self.face_id = value
+        elif index == 1:
+            self.x = value
+        else: # index == 2
+            self.y = value
+        
     def __str__(self) -> str:
-        return f'({self.faceCenter}, {self.x}, {self.y})'
+        return f'({self.face_id}, {self.x}, {self.y})'
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'{self.__class__.__name__}({', '.join(f'{k}={v!r}' for k, v in vars(self).items())})'
     
 

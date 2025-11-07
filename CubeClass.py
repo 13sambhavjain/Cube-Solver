@@ -1,7 +1,7 @@
 from copy import copy, deepcopy
 import random
 from Colors import Colors, Color
-from Face import Face
+from Face import Face, FaceId, Position, Coords
 from Directions import SideDirections, Direction
 from old_Colors import *
 
@@ -36,29 +36,29 @@ class Cube(CubeStructure):
     def __init__(self, size:int = 3, printState: bool=False):
         """Initialize a Cube(Solved) of given size."""
         self.size: int = size
-        self.state: dict[Color, Face] = Cube.getSolvedState(self.size)
+        self.state: dict[FaceId, Face] = Cube.getSolvedState(self.size)
         if printState:
-            print(self.state)
+            print(self)
 
     
     movementDirection2index: dict[Direction, tuple[str, int]] = { # mapping movement of SideDirection to row/column index
-        up: ('r', 0),
-        down: ('r', -1),
-        right: ('c', -1),
-        left: ('c', 0)
+        up: ('x', 0),
+        down: ('x', -1),
+        right: ('y', -1),
+        left: ('y', 0)
     }
-    sideDirection2edgeCoord: dict[Direction, tuple[int, int]] = { # Coordinate of edges in a face grid of 3x3 Cube
-        up: (0,1),
-        down: (2, 1),
-        right: (1, 2),
-        left: (1, 0)
+    sideDirection2edgeCoord: dict[Direction, Position] = { # Coordinate of edges in a face grid of 3x3 Cube
+        up: Position(0,1),
+        down: Position(2, 1),
+        right: Position(1, 2),
+        left: Position(1, 0)
     }
-    cornerCoord: list[tuple[int, int]] = [
-        (0, 0), (0, 2), (2, 2), (2, 0)
+    cornerCoord: list[Position] = [
+        Position(0, 0), Position(0, 2), Position(2, 2), Position(2, 0)
     ]
 
     @staticmethod
-    def getSolvedState(size:int = 3) -> dict[Color, Face]:
+    def getSolvedState(size:int = 3) -> dict[FaceId, Face]:
         """Return the solved state of a Cube of given size."""
         return {
             color: Face(size, color)
@@ -66,23 +66,25 @@ class Cube(CubeStructure):
         }
     
     @staticmethod
-    def BackEdgeCoords(i: int, j: int) -> tuple[int, int]:
+    def BackEdgeCoords(position: Position) -> Position:
         """Given edge coordinates (i, j)(front), return the opposite(back) edge coordinates."""
         # implement edge check
+        i, j = position
         if (i+j) == 3:
-            return i-1, j-1
+            return Position(i-1, j-1)
         else: #if edge then i+j == 1
-            return i+1, j+1
+            return Position(i+1, j+1)
 
     @staticmethod
-    def EdgeOtherSide(color, i, j):
+    def EdgeOtherSide(coords: Coords) -> Coords:
         """Given coords of one side of an edge piece, 
-        return the coords of the other side of that edge piece."""       
-        ind = int(Cube.colors.index(color))
+        return the coords of the other side of that edge piece."""      
+        face_id, i, j = coords
+        ind = int(Cube.colors.index(face_id))
         k = (3 - (i + j))//2
         if (i + j)&1:
             # edges
-            return Cube.colors[(ind + 1 + k*3 + ((ind + (i&1))&1))%6], k + (ind&1), k + ((ind + 1)&1)
+            return Coords(Cube.colors[(ind + 1 + k*3 + ((ind + (i&1))&1))%6], k + (ind&1), k + ((ind + 1)&1))
         else:
             raise ValueError
 
