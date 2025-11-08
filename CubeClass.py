@@ -1,10 +1,10 @@
 from copy import copy, deepcopy
 import random
 from Colors import Colors, Color
-from Face import Face, FaceId, Position, Coords
+from Face import Face, FaceId, FaceIds, Position, Coords
 from Directions import SideDirections, Direction
 from old_Colors import *
-
+from collections.abc import Callable
 class CubeStructure():
     # colors = [w,r,g,y,o,b]
     # sturcture =   # w
@@ -12,9 +12,10 @@ class CubeStructure():
                     # y g
                         # r
 
+    faceIds = Colors()
     colors = Colors() # [w, b, r, g, y, o] -  with some cyclic Functionalities
     directions = SideDirections() # [up, right, down, left] - with some cyclic Functionalities
-    direction2color: dict[Color, dict[Direction, Color]] = { # mapping SideDirection to Face center color
+    direction2faceId: dict[FaceId, dict[Direction, FaceId]] = { # mapping SideDirection to Face center color
         w: {right:o, down:b, left:r, up:g, opp:y},
         y: {right:g, down:r, left:b, up:o, opp:w},
         r: {right:w, down:b, left:y, up:g, opp:o},
@@ -22,7 +23,7 @@ class CubeStructure():
         b: {right:o, down:y, left:r, up:w, opp:g},
         g: {right:w, down:r, left:y, up:o, opp:b}
     }
-    color2direction: dict[Color, dict[Color, Direction]] = { # mapping Face center color to SideDirection
+    faceId2direction: dict[FaceId, dict[FaceId, Direction]] = { # mapping Face center color to SideDirection
         w: {o:right, b:down, r:left, g:up, y:opp},
         y: {g:right, r:down, b:left, o:up, w:opp},
         r: {w:right, b:down, y:left, g:up, o:opp},
@@ -58,11 +59,11 @@ class Cube(CubeStructure):
     ]
 
     @staticmethod
-    def getSolvedState(size:int = 3) -> dict[FaceId, Face]:
+    def getSolvedState(size:int = 3, faceId2fillColor: Callable[[FaceId], Color] = lambda x: x)  -> dict[FaceId, Face]:
         """Return the solved state of a Cube of given size."""
         return {
-            color: Face(size, color)
-            for color in Cube.colors
+            faceId: Face(size, faceId2fillColor(faceId))
+            for faceId in Cube.faceIds
         }
     
     @staticmethod

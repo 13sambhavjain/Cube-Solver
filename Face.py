@@ -1,4 +1,4 @@
-from Colors import Color
+from Colors import Color, Colors
 import copy, warnings
 
 class Face:
@@ -88,6 +88,7 @@ class Face:
         return f'{self.__class__.__name__}(size={self.size!r}, grid={self.grid!r})'
     
 FaceId = Color
+FaceIds = Colors
     
 class Position():
     """Postion on a Face"""
@@ -173,6 +174,6 @@ if __name__ == "__main__":
     # print(Coord(Color.white, 1, 2).__repr__())
     # print(Position( 1, 2).__repr__())
 
-    print(f'{Face(3, Color.white)}')
+    print(f'{Face(3, Color.white): a}')
         
     

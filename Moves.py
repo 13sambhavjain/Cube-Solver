@@ -1,8 +1,10 @@
-from Colors import Color, Colors, Face
+from Colors import Color, Colors
+from Face import Face, FaceId, FaceIds, Position, Coords
+from Directions import Direction, SideDirections
 
 class Move():
-    def __init__(self, face: Face, turns: int=1):
-        self.face: Face = face
+    def __init__(self, faceId: FaceId, turns: int=1):
+        self.faceId: FaceId = faceId
         self._turns: int = turns%4
     
     @property
@@ -13,7 +15,7 @@ class Move():
         self._turns = value % 4
     
     def __str__(self) -> str:
-        face_letter = self.face.name[0].upper()
+        face_letter: str = self.faceId.__format__('i')
         match self.turns:
             case 0:
                 return ""
@@ -27,22 +29,23 @@ class Move():
                 raise ValueError(f"Invalid number of turns, {self.__repr__()}")
     
     def __repr__(self):
-        return f'{self.__class__.__name__}(face={self.face!r}, turns={self.turns!r})'
+        return f'{self.__class__.__name__}(faceId={self.faceId!r}, turns={self.turns!r})'
     
     def __bool__(self) -> bool:
         return self.turns != 0
     
     def __add__(self, other: Move) -> Move|Moves:
-        if self.face == other.face:
-            return Move(self.face, self.turns + other.turns)
+        if self.faceId == other.faceId:
+            return Move(self.faceId, self.turns + other.turns)
         else:
             return Moves([self, other])
         
     def __radd__(self, other: Moves) -> Move|Moves:
+        raise NotImplementedError
         if not other:
             return self
-        if self.face == other[0].face:
-            return Move(self.face, self.turns + sum(move.turns for move in other))
+        if self.faceId == other[0].faceId:
+            return Move(self.faceId, self.turns + sum(move.turns for move in other))
         return Moves([self] + other)
 
 class Moves():
