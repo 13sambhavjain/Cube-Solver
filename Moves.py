@@ -1,34 +1,51 @@
 from Colors import Color, Colors
 from Face import Face, FaceId, FaceIds, Position, Coords
 from Directions import Direction, SideDirections
+from copy import deepcopy
 
 class Move():
     def __init__(self, faceId: FaceId, turns: int=1):
         self.faceId: FaceId = faceId
         self._turns: int = turns%4
+
+    def __iter__(self):
+        yield self.faceId
+        yield self.turns
+
+    def __getitem__(self, index: int) -> FaceId|int:
+        index %= 2
+        if index==0:
+            return self.faceId
+        return self.turns
+    
+    def __setitem__(self, index: int, value: FaceId|int) -> None:
+        index %= 2
+        if index==0:
+            self.faceId = value  # type: ignore
+        else:
+            self.turns = value  # type: ignore
     
     @property
     def turns(self) -> int:
         return self._turns
     @turns.setter
-    def turns(self, value: int):
+    def turns(self, value: int) -> None:
         self._turns = value % 4
     
     def __str__(self) -> str:
         face_letter: str = self.faceId.__format__('i')
-        match self.turns:
-            case 0:
-                return ""
-            case 1:
-                return f'{face_letter}'
-            case 2:
-                return f'{face_letter}\u00b2'
-            case 3:
-                return f'{face_letter}`'
-            case _:
-                raise ValueError(f"Invalid number of turns, {self.__repr__()}")
+        if self.turns == 0:
+            return ""
+        elif self.turns == 1:
+            return f'{face_letter}'
+        elif self.turns == 2:
+            return f'{face_letter}\u00b2'
+        elif self.turns == 3:
+            return f'{face_letter}`'
+        else:
+            raise ValueError(f"Invalid number of turns, {self.__repr__()}")
     
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'{self.__class__.__name__}(faceId={self.faceId!r}, turns={self.turns!r})'
     
     def __bool__(self) -> bool:
@@ -40,13 +57,22 @@ class Move():
         else:
             return Moves([self, other])
         
-    def __radd__(self, other: Moves) -> Move|Moves:
-        raise NotImplementedError
-        if not other:
-            return self
-        if self.faceId == other[0].faceId:
-            return Move(self.faceId, self.turns + sum(move.turns for move in other))
-        return Moves([self] + other)
+    def __radd__(self, other: Moves) -> Moves:
+        # raise NotImplementedError
+        if not isinstance(other, Moves):
+            raise TypeError(f"Unsupported operand type(s) for +: '{type(other
+                                                                        ).__name__}' and '{type(self).__name__}'")
+        otherCopy = deepcopy(other)
+        while self.faceId == otherCopy[0].faceId:
+            t = otherCopy[0].turns + self.turns
+            if t % 4 == 0:
+                otherCopy.pop(0)
+            else:
+                otherCopy[0].turns = t % 4
+            self.turns = 0
+        if self:
+            otherCopy.insert(0, self)
+        return otherCopy
 
 class Moves():
     def __init__(self, moves: list[Move]):
@@ -54,43 +80,31 @@ class Moves():
     
     def __str__(self) -> str:
         return ' '.join(str(move) for move in self.moves)
-    
-    def __repr__(self):
-        return f'{self.__class__.__name__}({', '.join(f'{k}={v!r}' for k, v in vars(self).items())})'
-    
-    def append(self, move: Move):
-        if not move:
-            return
-        if self.moves and self.moves[-1].face == move.face:
-            combined_turns = (self.moves[-1].turns + move.turns) % 4
-            if combined_turns == 0:
-                self.moves.pop()
-            else:
-                self.moves[-1].turns = combined_turns
-        else:
-            self.moves.append(move)
-    
-    def pop(self) -> Move:
-        return self.moves.pop()
-    
+
+    def pop(self, index: int = -1) -> Move:
+        return self.moves.pop(index)
+
     def __len__(self) -> int:
         return len(self.moves)
     
     def __getitem__(self, index: int) -> Move:
         return self.moves[index]
     
+    def __setitem__(self, index: int, move: Move) -> None:
+        self.moves[index] = move
+
+    def __delitem__(self, index: int) -> None:
+        del self.moves[index]
+
     def __iter__(self):
         return iter(self.moves)
     
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'Moves(moves={self.moves})'
     
-    def extend(self, moves: list[Move]):
+    def extend(self, moves: list[Move]) -> None:
         for move in moves:
             self.append(move)
-
-    def __setitem__(self, index: int, move: Move):
-        self.moves[index] = move
 
     def __contains__(self, move: Move) -> bool:
         return move in self.moves
@@ -98,11 +112,29 @@ class Moves():
     def __bool__(self) -> bool:
         return bool(self.moves)
     
+    def insert(self, index: int, move: Move, efficient: bool = True) -> None:
+        if efficient:
+            raise NotImplementedError
+        else:
+            self.moves.insert(index, move)
+
     def __add__(self, other: Move|Moves) -> Moves:
-        result = Moves(self.moves.copy())
+        result = deepcopy(self)
         if isinstance(other, Move):
             result.append(other)
         elif isinstance(other, Moves):
             for move in other:
                 result.append(move)
         return result
+    
+    def append(self, move: Move) -> None:
+        if not move:
+            return
+        if self.moves and self.moves[-1].faceId == move.faceId:
+            combined_turns = (self.moves[-1].turns + move.turns) % 4
+            if combined_turns == 0:
+                self.moves.pop()
+            else:
+                self.moves[-1].turns = combined_turns
+        else:
+            self.moves.append(move)

@@ -1,8 +1,10 @@
 from Colors import Color, Colors
 import copy, warnings
+from Directions import Direction
+from old_Colors import *
 
 class Face:
-    def __init__(self, size: int=3, fill_color: Color = None, grid: list[list[Color]] = None):
+    def __init__(self, size: int=3, fill_color: Color = None, grid: list[list[Color]] = None): #type: ignore
         """Initializes a Face object. Requires either a fill_color color (to generate a new grid)
         OR an existing grid to load from."""
         #Validation and Warnings---
@@ -21,7 +23,6 @@ class Face:
             
         self._size = size
             
-
     @property
     def size(self):
         return self._size
@@ -30,23 +31,18 @@ class Face:
         raise AttributeError('Face.size attribute is not ment to change once the Face is created.')
 
     def __str__(self) -> str:
-        return '\n'.join(' '.join(cell.name[0].upper() for cell in row) for row in self.grid)
+        return '\n'.join(' '.join(f'{cell}' for cell in row) for row in self.grid)
     
     def __format__(self, format_spec: str) -> str:
         """
-        Custom formatting for the Face grid output using comprehensions.
-        - 's' or '': Single letter representation (default).
-        - 'a': ANSI colored boxes representation.
-        - 'i': returns the ANSI background code with initials in them
+        Custom formatting using format specifiers:
+        - 'i' or 'initial' or '': returns the ANSI background code with initials in them (default).
+        - 'colored': returns just the background code with two spaces.
+        - 'coloredinitial' or 'ci': returns just the background code with initial letter.
+        - 'fullname' or 'name': returns the full name of the color.
         """
         # Use the format() function dynamically
-        if not format_spec:
-            return str(self)
-        return '\n'.join(
-            "".join(format(cell, format_spec) for cell in row) 
-            for row in self.grid
-        )
-        
+        return '\n'.join(''.join(format(cell, format_spec) for cell in row) for row in self.grid)
     
     def rotate_clockwise(self) -> None:
         self.grid = [list(row) for row in zip(*self.grid[::-1])]
@@ -54,6 +50,38 @@ class Face:
     def rotate_anticlockwise(self) -> None:
         self.grid = [list(row) for row in zip(*self.grid)][::-1]
 
+    def solved(self) -> bool:
+        first_color: Color = self.grid[0][0]
+        return all(first_color == color for row in self.grid for color in row)
+    
+    def get_edge(self, direction: Direction, depth: int = 1) -> list[Color]:
+        s = self.size
+        if direction == Direction.up:
+            return self.grid[depth - 1]
+        elif direction == Direction.down:
+            return self.grid[s - depth]
+        elif direction == Direction.left:
+            return [self.grid[i][depth - 1] for i in range(s)]
+        elif direction == Direction.right:
+            return [self.grid[i][s - depth] for i in range(s)]
+        else:
+            raise ValueError(f"Invalid direction {direction} for getting edge.")
+        
+    def set_edge(self, direction: Direction, colors: list[Color], depth: int = 1):
+        s = self.size
+        if direction == Direction.up:
+            self.grid[depth - 1] = colors
+        elif direction == Direction.down:
+            self.grid[s - depth] = colors
+        elif direction == Direction.left:
+            for i in range(s):
+                self.grid[i][depth - 1] = colors[i]
+        elif direction == Direction.right:
+            for i in range(s):
+                self.grid[i][s - depth] = colors[i]
+        else:
+            raise ValueError(f"Invalid direction {direction} for setting edge.")
+    
     def __iter__(self):
         return iter(self.grid)
     
@@ -72,10 +100,6 @@ class Face:
         else:
             return self.grid.__contains__(color)
     
-    def solved(self) -> bool:
-        first_color: Color = self.grid[0][0]
-        return all(first_color == color for row in self.grid for color in row)
-    
     def __bool__(self) -> bool:
         return bool(self.grid)
     
@@ -86,6 +110,8 @@ class Face:
         # We output fill_color and size, matching the constructor signature.
         # We omit grid as it's generated automatically by __init__.
         return f'{self.__class__.__name__}(size={self.size!r}, grid={self.grid!r})'
+    
+
     
 FaceId = Color
 FaceIds = Colors
@@ -156,12 +182,12 @@ class Coords():
     def __setitem__(self, index: int, value: FaceId|int) -> None:
         index %= 3
         if index == 0:
-            self.face_id = value
+            self.face_id = value # type: ignore
         elif index == 1:
-            self.x = value
+            self.x = value # type: ignore
         else: # index == 2
-            self.y = value
-        
+            self.y = value # type: ignore
+
     def __str__(self) -> str:
         return f'({self.face_id}, {self.x}, {self.y})'
 
@@ -174,6 +200,6 @@ if __name__ == "__main__":
     # print(Coord(Color.white, 1, 2).__repr__())
     # print(Position( 1, 2).__repr__())
 
-    print(f'{Face(3, Color.white): a}')
+    print(f'{Face(3, Color.white):name}')
         
     

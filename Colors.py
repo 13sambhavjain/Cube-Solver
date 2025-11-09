@@ -25,18 +25,22 @@ class Color(StrEnum):
     def __format__(self, format_spec: str):
         """
         Custom formatting using format specifiers:
-        - 's': returns the color name
-        - 'a': returns the ANSI background code + reset code
-        - 'i': returns the ANSI background code + initial letter + reset code
+        - 'i' or 'initial' or '': returns the ANSI background code with initials in them (default).
+        - 'colored': returns just the background code with two spaces.
+        - 'coloredinitial' or 'ci': returns just the background code with initial letter.
+        - 'fullname' or 'name': returns the full name of the color.
         """
-        if format_spec == 'i':
-            # Returns background code + initial letter + RESET
-            return f"{_COLOR_ANSI_MAP[self.name]}{self.name[0].upper():^3}{_RESET_CODE}"
-        elif format_spec == 'a':
+        if format_spec == 'i' or format_spec == 'initial' or format_spec == '':
+            # Returns initial letter + RESET
+            return f"{self.name[0].upper():<2}"
+        elif format_spec == 'colored':
             # Returns just the background code + two spaces + RESET
             return f"{_COLOR_ANSI_MAP[self.name]}  {_RESET_CODE}"
-        elif format_spec == 's' or format_spec == '':
-            return str(self)
+        elif format_spec == 'coloredinitial' or format_spec == 'ci':
+            # Returns just the background code + initial letter + RESET
+            return f"{_COLOR_ANSI_MAP[self.name]}{self.name[0].upper():<2}{_RESET_CODE}"
+        elif format_spec == 'fullname' or format_spec == 'name':
+            return format(str(self.name), '<8')
         else:
             return format(str(self), format_spec)
 

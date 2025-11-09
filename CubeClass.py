@@ -36,12 +36,12 @@ class CubeStructure():
 
 class Cube(CubeStructure):
     """Class(Structur and functions) of a 3x3 Rubick's Cube"""
-    def __init__(self, size:int = 3, printState: bool=False):
+    def __init__(self, size:int = 3, start_faceId: FaceId = w):
         """Initialize a Cube(Solved) of given size."""
         self.size: int = size
         self.state: dict[FaceId, Face] = Cube.getSolvedState(self.size)
-        if printState:
-            print(self)
+        self.start_faceId: FaceId = start_faceId
+
 
     def __getitem__(self, face_id: FaceId) -> Face:
         return self.state[face_id]
@@ -199,36 +199,80 @@ class Cube(CubeStructure):
             moves.append(self.clockwise(random.choice(Cube.colors), random.choice([1,2,3])))
         return moves
 
-    def __str__(self) -> str:
-        result = ""
-        size = self.size
-        # Top face
-        result += str(self[w]) + '\n\n'
-        size = 0
-        temp = str(self[b]).split('\n')
-        temp1 = str(self[o]).split('\n')
-        result += '\n'.join(" " * size + temp[i] + "  " + temp1[i] for i in range(self.size)) + '\n\n'
-        size += len(temp[0]) + 2
-        temp = str(self[y]).split('\n')
-        temp1 = str(self[g]).split('\n')
-        result += '\n'.join(" " * size + temp[i] + "  " + temp1[i] for i in range(self.size)) + '\n\n'
-        size += len(temp[0]) + 2
-        result += " " * size + str(self[r]).replace('\n', '\n'+" "*size) + '\n'
-        return result
-    
     def __format__(self, format_spec: str) -> str:
         """
-        Custom formatting using format specifiers:
-        - 'i' or 'initial' or '': returns the ANSI background code with initials in them (default).
-        - 'colored': returns just the background code with two spaces.
-        - 'coloredinitial' or 'ci': returns just the background code with initial letter.
-        - 'fullname' or 'name': returns the full name of the color.
+        Prints the cube layout starting from self.start_faceId in a diagonal layout:
+            w
+            b  o
+               y  g
+                  r
+        Traverses down and right directions dynamically until right loops back to start.
         """
-        # Use the format() function dynamically
-        return '\n'.join(' '.join(f'{cell:format_spec}' for cell in row) for row in self.grid)
-    
+        def fmt(face_id):
+            return format(self[face_id], format_spec).split('\n')
+
+        face = self.start_faceId
+        goDown = False
+        gap = "  "  # space between adjacent faces in a row
+        ans = []
+        current_face = Cube.direction2faceId[face][down]
+
+        # Helper to format a face as a list of lines
+       # Determine width of a single face (for spacing)
+        current_lines = fmt(face)
+        face_width = len(current_lines[0])
+        rightCount = 0
+        
+        while current_face != face:
+            # collect faces in the current "row"
+            if goDown:
+                # ans += current_lines (already done in else case)
+                current_face = Cube.direction2faceId[current_face][down]
+                current_lines = fmt(current_face)
+                
+            else:
+                ans += current_lines
+                current_l = fmt(current_face)
+                current_face = Cube.direction2faceId[current_face][right]
+                if next_face == face:
+                    next_lines = [""]*len(current_lines)
+                else:
+                    next_lines = fmt(next_face)
+                indent = (" " * (face_width) + gap) * rightCount
+                ans += [indent + current_lines[i] + gap + next_lines[i] for i in range(len(current_lines))]
+                current_face = next_face
+                goDown = True
+            faces_in_row = []
+            f = current_face
+            while True:
+                faces_in_row.append(f)
+                next_right = self.direction2faceId[f].get(right)
+                if not next_right or next_right == start:
+                    break
+                f = next_right
+
+            # format each face
+            formatted = [fmt(face) for face in faces_in_row]
+
+            # horizontally combine faces in this row
+            for row_i in range(len(formatted[0])):
+                line = (' ' * indent) + gap.join(f[row_i] for f in formatted)
+                face_lines.append(line)
+            face_lines.append("")  # blank line between rows
+
+            # move one step down
+            next_down = self.direction2faceId[current_face].get(down)
+            if not next_down or next_down == start:
+                break
+            indent += indent_step
+            current_face = next_down
+
+        return "\n".join(face_lines)
+
+    __str__ = lambda self: self.__format__('i')
+
 if __name__ == "__main__":
-    cube = Cube(printState=True)
+    cube = Cube()
     # print(cube.anticlockwise(w))
     # print(cube)
 
