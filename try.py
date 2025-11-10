@@ -151,7 +151,8 @@ if __name__ == "__main__":
 # r1.perimeter()
 # r1.diagonal()
 
-
+_ = 2
+__ = 3
 # ss = input().lower()
 # ss1 = ss[::-1]
 # if ss1 == ss:
@@ -170,5 +171,10 @@ if __name__ == "__main__":
 # ECU -- electronic control unit
 
 
-def isPrime(n) -> bool:
-    return 
+# def isPrime(n) -> bool:
+#     return 
+
+
+
+k = __-+---__---_-__
+print()

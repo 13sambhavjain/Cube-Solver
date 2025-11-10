@@ -75,13 +75,58 @@ class Move():
         return otherCopy
 
 class Moves():
-    def __init__(self, moves: list[Move]):
-        self.moves: list[Move] = moves
+    def __init__(self, moves: list[Move] = None, efficient: bool = False): #type: ignore
+        self.moves: list[Move] = moves if moves is not None else list()
+        self.efficient: bool = efficient
+
+    def append(self, move: Move) -> None:
+        if not move:
+            return
+        if self.efficient and self.moves and self.moves[-1].faceId == move.faceId:
+            combined_turns = (self.moves[-1].turns + move.turns) % 4
+            if combined_turns == 0:
+                self.moves.pop()
+            else:
+                self.moves[-1].turns = combined_turns
+        else:
+            self.moves.append(move)
+
+    def make_efficient(self) -> None:
+        # efficient_moves = Moves(efficient=True)
+        # for move in self.moves:
+        #     efficient_moves.append(move)
+        # self.moves = efficient_moves.moves
+        # self.efficient = True
+        pass 
+
+    def extend(self, moves: Moves) -> None:
+        if self.efficient:
+            for move in moves:
+                self.append(move)
+        else:
+            self.moves.extend(moves.moves)
+
+    def insert(self, index: int, move: Move, efficient: bool = True) -> None:
+        if self.efficient:
+            raise NotImplementedError
+        else:
+            self.moves.insert(index, move)
+
+    def __add__(self, other: Move|Moves) -> Moves:
+        result = deepcopy(self)
+        if isinstance(other, Move):
+            result.append(other)
+        elif isinstance(other, Moves):
+            for move in other:
+                result.append(move)
+        return result
     
     def __str__(self) -> str:
         return ' '.join(str(move) for move in self.moves)
 
     def pop(self, index: int = -1) -> Move:
+        if self.efficient and index != -1:
+            raise NotImplementedError
         return self.moves.pop(index)
 
     def __len__(self) -> int:
@@ -100,41 +145,11 @@ class Moves():
         return iter(self.moves)
     
     def __repr__(self) -> str:
-        return f'Moves(moves={self.moves})'
-    
-    def extend(self, moves: list[Move]) -> None:
-        for move in moves:
-            self.append(move)
+        return f'Moves(moves={self.moves}, efficient={self.efficient})'
 
     def __contains__(self, move: Move) -> bool:
         return move in self.moves
     
     def __bool__(self) -> bool:
         return bool(self.moves)
-    
-    def insert(self, index: int, move: Move, efficient: bool = True) -> None:
-        if efficient:
-            raise NotImplementedError
-        else:
-            self.moves.insert(index, move)
 
-    def __add__(self, other: Move|Moves) -> Moves:
-        result = deepcopy(self)
-        if isinstance(other, Move):
-            result.append(other)
-        elif isinstance(other, Moves):
-            for move in other:
-                result.append(move)
-        return result
-    
-    def append(self, move: Move) -> None:
-        if not move:
-            return
-        if self.moves and self.moves[-1].faceId == move.faceId:
-            combined_turns = (self.moves[-1].turns + move.turns) % 4
-            if combined_turns == 0:
-                self.moves.pop()
-            else:
-                self.moves[-1].turns = combined_turns
-        else:
-            self.moves.append(move)

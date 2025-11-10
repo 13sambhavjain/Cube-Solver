@@ -436,8 +436,6 @@ class Cube():
         else:
             return newFace, *Cube.cornerCoord[(Cube.cornerCoord.index((i,j)) + increment)%4]
 
-            
-    
     @staticmethod
     def get_solved_cube(row, col):
         return {x: [[x for i in range(col)] for j in range(row)] for x in Cube.colors}

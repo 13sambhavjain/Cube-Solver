@@ -82,12 +82,12 @@ class Solver(Cube):
     
     def apply(self, front, top, *formulas) -> list:
         moves = []
-        rotate = Cube.directions.index(Cube.color2direction[front][top])
+        rotate = Cube.side_directions.index(Cube.color2direction[front][top])
         di = {
-            'U': Cube.direction2color[front][Cube.directions[rotate]],
-            'R': Cube.direction2color[front][Cube.directions[(rotate+1)%4]],
-            'D': Cube.direction2color[front][Cube.directions[(rotate+2)%4]],
-            'L': Cube.direction2color[front][Cube.directions[(rotate+3)%4]],
+            'U': Cube.direction2color[front][Cube.side_directions[rotate]],
+            'R': Cube.direction2color[front][Cube.side_directions[(rotate+1)%4]],
+            'D': Cube.direction2color[front][Cube.side_directions[(rotate+2)%4]],
+            'L': Cube.direction2color[front][Cube.side_directions[(rotate+3)%4]],
             'B': Cube.direction2color[front][opp],
             'F': front
         }

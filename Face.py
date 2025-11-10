@@ -50,6 +50,9 @@ class Face:
     def rotate_anticlockwise(self) -> None:
         self.grid = [list(row) for row in zip(*self.grid)][::-1]
 
+    def rotate_180(self) -> None:
+        self.grid = [row[::-1] for row in self.grid[::-1]]
+
     def solved(self) -> bool:
         first_color: Color = self.grid[0][0]
         return all(first_color == color for row in self.grid for color in row)
