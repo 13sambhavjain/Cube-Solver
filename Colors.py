@@ -32,13 +32,13 @@ class Color(StrEnum):
         """
         if format_spec == 'i' or format_spec == 'initial' or format_spec == '':
             # Returns initial letter + RESET
-            return f"{self.name[0].upper():<2}"
+            return f"{self.name[0].upper()} "
         elif format_spec == 'colored':
             # Returns just the background code + two spaces + RESET
             return f"{_COLOR_ANSI_MAP[self.name]}  {_RESET_CODE}"
         elif format_spec == 'coloredinitial' or format_spec == 'ci':
             # Returns just the background code + initial letter + RESET
-            return f"{_COLOR_ANSI_MAP[self.name]}{self.name[0].upper():<2}{_RESET_CODE}"
+            return f"{_COLOR_ANSI_MAP[self.name]}{self.name[0].upper()} {_RESET_CODE}"
         elif format_spec == 'fullname' or format_spec == 'name':
             return format(str(self.name), '<8')
         else:

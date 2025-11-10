@@ -36,12 +36,12 @@ class CubeStructure():
 
 class Cube(CubeStructure):
     """Class(Structur and functions) of a 3x3 Rubick's Cube"""
-    def __init__(self, size:int = 3, start_faceId: FaceId = w):
+    def __init__(self, size:int = 3, start_faceId: FaceId = w, *, default_print_format: str = 'i'):
         """Initialize a Cube(Solved) of given size."""
         self.size: int = size
         self.state: dict[FaceId, Face] = Cube.getSolvedState(self.size)
         self.start_faceId: FaceId = start_faceId
-
+        self.default_print_format: str = default_print_format
 
     def __getitem__(self, face_id: FaceId) -> Face:
         return self.state[face_id]
@@ -130,7 +130,7 @@ class Cube(CubeStructure):
         
         for (f, d), new_edge in zip(neighbors, edges[-1:] + edges[:-1]): # change here for opposite rotation
             self[f].set_edge(d, new_edge)
-        return Move(face_id)
+        return Move(face_id, -1)
     
     # def clockwise(self, face_id: FaceId):
     #     if isinstance(face_id, Move):
@@ -210,76 +210,69 @@ class Cube(CubeStructure):
         """
         def fmt(face_id):
             return format(self[face_id], format_spec).split('\n')
-
-        face = self.start_faceId
-        goDown = False
-        gap = "  "  # space between adjacent faces in a row
-        ans = []
-        current_face = Cube.direction2faceId[face][down]
-
-        # Helper to format a face as a list of lines
-       # Determine width of a single face (for spacing)
-        current_lines = fmt(face)
-        face_width = len(current_lines[0])
-        rightCount = 0
-        
-        while current_face != face:
-            # collect faces in the current "row"
-            if goDown:
-                # ans += current_lines (already done in else case)
-                current_face = Cube.direction2faceId[current_face][down]
-                current_lines = fmt(current_face)
-                
-            else:
-                ans += current_lines
-                current_l = fmt(current_face)
-                current_face = Cube.direction2faceId[current_face][right]
-                if next_face == face:
-                    next_lines = [""]*len(current_lines)
+        def visible_len(s: str) -> int:
+            """Return visible length of string ignoring ANSI color codes."""
+            n = 0
+            i = 0
+            while i < len(s):
+                if s[i] == "\x1b":  # start of ANSI escape sequence
+                    # skip until 'm' or end of string
+                    i += 1
+                    while i < len(s) and s[i] != "m":
+                        i += 1
+                    i += 1  # skip the 'm' itself
                 else:
-                    next_lines = fmt(next_face)
+                    n += 1
+                    i += 1
+            return n
+
+        cameDown = True
+        gap = "  "  # space between adjacent faces in a row
+        rightCount = 0
+        start_face = self.start_faceId
+        current_face = Cube.direction2faceId[start_face][down]
+        current_lines = fmt(start_face)
+        face_width = visible_len(current_lines[0])
+        ans = []
+            
+        while current_face != start_face:
+            # collect faces in the current "row"
+            if cameDown:
+                ans += current_lines + [""]
+                current_lines = fmt(current_face)
                 indent = (" " * (face_width) + gap) * rightCount
-                ans += [indent + current_lines[i] + gap + next_lines[i] for i in range(len(current_lines))]
-                current_face = next_face
-                goDown = True
-            faces_in_row = []
-            f = current_face
-            while True:
-                faces_in_row.append(f)
-                next_right = self.direction2faceId[f].get(right)
-                if not next_right or next_right == start:
-                    break
-                f = next_right
+                for i in range(len(current_lines)):
+                    current_lines[i] = indent + current_lines[i]
+                current_face = Cube.direction2faceId[current_face][right] #went to right
+                cameDown = False
+            else: # came right
+                # ans += current_lines (already done in else case)
+                add2lines = fmt(current_face)
+                for i in range(len(current_lines)):
+                    current_lines[i] += gap + add2lines[i]
+                current_face = Cube.direction2faceId[current_face][down] # went down
+                cameDown = True
+                rightCount += 1
+                
+        ans += current_lines
 
-            # format each face
-            formatted = [fmt(face) for face in faces_in_row]
+        return "\n".join(ans)
+    
+    def set_default_str_format(self, format_spec: str) -> None:
+        """Set the default string format for the Cube's __str__ method."""
+        self.__str__ = lambda self: self.__format__(format_spec) #type: ignore
 
-            # horizontally combine faces in this row
-            for row_i in range(len(formatted[0])):
-                line = (' ' * indent) + gap.join(f[row_i] for f in formatted)
-                face_lines.append(line)
-            face_lines.append("")  # blank line between rows
-
-            # move one step down
-            next_down = self.direction2faceId[current_face].get(down)
-            if not next_down or next_down == start:
-                break
-            indent += indent_step
-            current_face = next_down
-
-        return "\n".join(face_lines)
-
-    __str__ = lambda self: self.__format__('i')
+    def __str__(self) -> str:
+        return self.__format__(self.default_print_format)
 
 if __name__ == "__main__":
-    cube = Cube()
-    # print(cube.anticlockwise(w))
-    # print(cube)
-
+    cube = Cube(default_print_format='coloredinitial')
+    print(cube.anticlockwise(w))
+    print(cube)
     print(cube.clockwise(r))
-    # print(cube)
+    print(cube)
 
-    # print(cube.anticlockwise(b,3))
+    print(cube.anticlockwise(b))
     print(cube)
 
     print(cube.clockwise(o))

@@ -33,7 +33,7 @@ class Move():
         self._turns = value % 4
     
     def __str__(self) -> str:
-        face_letter: str = self.faceId.__format__('i')
+        face_letter: str = self.faceId.__format__('i').strip()
         if self.turns == 0:
             return ""
         elif self.turns == 1:
