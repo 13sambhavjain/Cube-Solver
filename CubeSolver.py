@@ -1,6 +1,6 @@
 from copy import copy, deepcopy
 import random
-from old_Colors import *
+from ColorDirectionAcronyms import *
 # colors = [w,r,g,y,o,b]
 # sturcture =   # w
                 # b o

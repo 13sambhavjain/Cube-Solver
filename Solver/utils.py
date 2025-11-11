@@ -1,7 +1,7 @@
 from CubeClass import Cube
 from Directions import Direction, SideDirections
 from Colors import Color, Colors
-from old_Colors import *
+from ColorDirectionAcronyms import *
 from copy import deepcopy
 
 

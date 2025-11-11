@@ -1,6 +1,4 @@
-from Colors import Color, Colors
-from Face import Face, FaceId, FaceIds, Position, Coords
-from Directions import Direction, SideDirections
+from Face import FaceId
 from copy import deepcopy
 
 class Move():
