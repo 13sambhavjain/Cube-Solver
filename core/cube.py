@@ -1,12 +1,12 @@
 from copy import copy, deepcopy
-from Colors import Colors, Color
-from Face import Face, FaceId, FaceIds
-from Coordinates import Position, Coords
-from Directions import SideDirections, Direction
-from Moves import Move, Moves
-from ColorDirectionAcronyms import *
-from CubeMovements import CubeMovements
-from CubeStatics import CubeStatics
+from colors import Colors, Color
+from face import Face, FaceId, FaceIds
+from coordinates import Position, Coords
+from directions import SideDirections, Direction
+from moves import Move, Moves
+from shortnames import *
+from cube_movements import CubeMovements
+from cube_statics import CubeStatics
 
 class Cube(CubeMovements, CubeStatics):
     """Class(Structur and functions) of a 3x3 Rubick's Cube"""

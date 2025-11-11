@@ -1,7 +1,7 @@
-from CubeClass import Cube
+from cube import Cube
 from Directions import Direction, SideDirections
 from Colors import Color, Colors
-from ColorDirectionAcronyms import *
+from shortnames import *
 from copy import deepcopy
 
 

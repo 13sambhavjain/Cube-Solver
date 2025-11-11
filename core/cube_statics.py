@@ -1,11 +1,11 @@
-from Colors import Color, Colors
-from Directions import SideDirections
-from Moves import Moves, Move
-from Face import Face, FaceId
+from colors import Color, Colors
+from directions import SideDirections, Direction
+from moves import Moves, Move
+from face import Face, FaceId
 from functools import cache
 from collections.abc import Callable
 import random
-from ColorDirectionAcronyms import *
+from shortnames import *
 
 class CubeStatics():
     # colors = [w,r,g,y,o,b]

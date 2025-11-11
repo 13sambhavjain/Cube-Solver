@@ -3,10 +3,10 @@
 #     from CubeClass import Cube
 # Create a TypeVar that refers to subclasses of CubeMovements
 # _TCube = TypeVar("_TCube", bound="CubeMovements")
-from Face import FaceId, Face
-from Moves import Move, Moves
-from CubeStatics import CubeStatics
-from ColorDirectionAcronyms import *
+from face import FaceId, Face
+from moves import Move, Moves
+from cube_statics import CubeStatics
+from shortnames import *
 
 
 class CubeMovements(CubeStatics):

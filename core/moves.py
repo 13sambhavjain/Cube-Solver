@@ -1,4 +1,4 @@
-from Face import FaceId
+from face import FaceId
 from copy import deepcopy
 
 class Move():

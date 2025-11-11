@@ -1,4 +1,4 @@
-from Face import FaceId
+from face import FaceId
 
 class Position():
     """Postion on a Face"""

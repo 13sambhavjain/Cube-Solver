@@ -1,5 +1,5 @@
-from Colors import Color
-from Directions import Direction
+from colors import Color
+from directions import Direction
 
 w = Color.white
 b = Color.blue

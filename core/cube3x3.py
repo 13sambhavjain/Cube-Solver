@@ -1,5 +1,5 @@
-from CubeStatics import CubeStatics
-from Coordinates import Position, Coords
+from cube_statics import CubeStatics
+from coordinates import Position, Coords
 
 class Cube3x3Statics(CubeStatics):
     @staticmethod
