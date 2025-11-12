@@ -1,3 +1,4 @@
+# standard lib imports
 from enum import StrEnum, auto
 
 _COLOR_ANSI_MAP = {

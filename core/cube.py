@@ -1,25 +1,16 @@
+# standard lib imports
 from copy import copy, deepcopy
-from colors import Colors, Color
-from face import Face, FaceId, FaceIds
-from coordinates import Position, Coords
-from directions import SideDirections, Direction
-from moves import Move, Moves
-from shortnames import *
-from cube_movements import CubeMovements
-from cube_statics import CubeStatics
+# core imports
+from .colors import Colors, Color
+from .face import Face, FaceId, FaceIds
+from .coordinates import Position, Coords
+from .directions import SideDirections, Direction
+from .shortnames import *
+from .cube_movements import CubeMovements
+from .cube_statics import CubeStatics
 
 class Cube(CubeMovements, CubeStatics):
     """Class(Structur and functions) of a 3x3 Rubick's Cube"""
-
-    sideDirection2edgePosition: dict[Direction, Position] = { # Coordinate of edges in a face grid of 3x3 Cube
-        up: Position(0,1),
-        down: Position(2, 1),
-        right: Position(1, 2),
-        left: Position(1, 0)
-    }
-    cornerCoord: list[Position] = [
-        Position(0, 0), Position(0, 2), Position(2, 2), Position(2, 0)
-    ]
 
     def __init__(self, size:int = 3, start_faceId: FaceId = w, *, default_print_format: str = 'i'):
         """Initialize a Cube(Solved) of given size."""
@@ -104,6 +95,9 @@ class Cube(CubeMovements, CubeStatics):
         return self.__format__(self.default_print_format)
     
 if __name__ == "__main__":
+    import sys, os
+    sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+
     cube = Cube(start_faceId=b,default_print_format='coloredinitial')
     moves = cube.apply_formula(w, g, 'RUR`URUUR`')
     print(cube, moves)

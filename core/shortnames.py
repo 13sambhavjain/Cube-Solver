@@ -1,5 +1,5 @@
-from colors import Color
-from directions import Direction
+from .colors import Color
+from .directions import Direction
 
 w = Color.white
 b = Color.blue
@@ -12,4 +12,4 @@ right = Direction.right
 left = Direction.left
 up = Direction.up
 down = Direction.down
-opp = Direction.back
+back = Direction.back

@@ -1,3 +1,4 @@
+# standard lib imports
 from enum import StrEnum, auto
 
 class Direction(StrEnum):

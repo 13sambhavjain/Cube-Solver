@@ -1,7 +1,22 @@
-from cube_statics import CubeStatics
-from coordinates import Position, Coords
+#standard lib imports
+from functools import cache
+# core imports
+from .coordinates import Position, Coords
+from .cube_statics import CubeStatics
+from .directions import Direction
+from .shortnames import *
 
 class Cube3x3Statics(CubeStatics):
+    sideDirection2edgePosition: dict[Direction, Position] = { # Coordinate of edges in a face grid of 3x3 Cube
+        up: Position(0,1),
+        down: Position(2, 1),
+        right: Position(1, 2),
+        left: Position(1, 0)
+    }
+    cornerCoord: list[Position] = [
+        Position(0, 0), Position(0, 2), Position(2, 2), Position(2, 0)
+    ]
+
     @staticmethod
     def BackEdgePosition(position: Position) -> Position:
         """Given edge coordinates (i, j)(front), return the opposite(back) edge coordinates."""
@@ -40,23 +55,24 @@ class Cube3x3Statics(CubeStatics):
         else:
             raise ValueError
     
+    @cache
     @staticmethod
-    def CotherSide(c, i, j):
-        raise NotImplementedError
+    def CotherSide(corner_coords: Coords):
+        # raise NotImplementedError
         # corner
         cornerColors = [
-            {(w, 0, 0), (g, 2, 2), (r, 0, 2)},
-            {(w, 0, 2), (o, 0, 2), (g, 0, 2)},
-            {(w, 2, 0), (b, 0, 0), (r, 2, 2)},
-            {(w, 2, 2), (b, 0, 2), (o, 0, 0)},
-            {(y, 0, 0), (b, 2, 2), (o, 2, 0)},
-            {(y, 0, 2), (o, 2, 2), (g, 0, 0)},
-            {(y, 2, 0), (b, 2, 0), (r, 2, 0)},
-            {(y, 2, 2), (g, 2, 0), (r, 0, 0)}
+            {Coords(w, 0, 0), Coords(g, 2, 2), Coords(r, 0, 2)},
+            {Coords(w, 0, 2), Coords(o, 0, 2), Coords(g, 0, 2)},
+            {Coords(w, 2, 0), Coords(b, 0, 0), Coords(r, 2, 2)},
+            {Coords(w, 2, 2), Coords(b, 0, 2), Coords(o, 0, 0)},
+            {Coords(y, 0, 0), Coords(b, 2, 2), Coords(o, 2, 0)},
+            {Coords(y, 0, 2), Coords(o, 2, 2), Coords(g, 0, 0)},
+            {Coords(y, 2, 0), Coords(b, 2, 0), Coords(r, 2, 0)},
+            {Coords(y, 2, 2), Coords(g, 2, 0), Coords(r, 0, 0)}
         ]
         for colors in cornerColors:
-            if (c, i, j) in colors:
-                return colors - {(c, i, j)}
+            if corner_coords in colors:
+                return colors - {corner_coords}
         else:
-            raise ValueError(f'Given coords are not of a corner {(c,i,j)}')
+            raise ValueError(f'Given coords are not of a corner {corner_coords!r}')
 

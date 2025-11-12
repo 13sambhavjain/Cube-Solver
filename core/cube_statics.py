@@ -1,11 +1,13 @@
-from colors import Color, Colors
-from directions import SideDirections, Direction
-from moves import Moves, Move
-from face import Face, FaceId
+# standard library imports
 from functools import cache
 from collections.abc import Callable
 import random
-from shortnames import *
+# core imports
+from .colors import Color, Colors
+from .directions import SideDirections, Direction
+from .moves import Moves, Move
+from .face import Face, FaceId
+from .shortnames import *
 
 class CubeStatics():
     # colors = [w,r,g,y,o,b]
@@ -18,20 +20,20 @@ class CubeStatics():
     colors = Colors() # [w, b, r, g, y, o] -  with some cyclic Functionalities
     side_directions = SideDirections() # [up, right, down, left] - with some cyclic Functionalities
     direction2faceId: dict[FaceId, dict[Direction, FaceId]] = { # mapping SideDirection to Face center color
-        w: {right:o, down:b, left:r, up:g, opp:y},
-        y: {right:g, down:r, left:b, up:o, opp:w},
-        r: {right:w, down:b, left:y, up:g, opp:o},
-        o: {right:g, down:y, left:b, up:w, opp:r},
-        b: {right:o, down:y, left:r, up:w, opp:g},
-        g: {right:w, down:r, left:y, up:o, opp:b}
+        w: {right:o, down:b, left:r, up:g, back:y},
+        y: {right:g, down:r, left:b, up:o, back:w},
+        r: {right:w, down:b, left:y, up:g, back:o},
+        o: {right:g, down:y, left:b, up:w, back:r},
+        b: {right:o, down:y, left:r, up:w, back:g},
+        g: {right:w, down:r, left:y, up:o, back:b}
     }
     faceId2direction: dict[FaceId, dict[FaceId, Direction]] = { # mapping Face center color to SideDirection
-        w: {o:right, b:down, r:left, g:up, y:opp},
-        y: {g:right, r:down, b:left, o:up, w:opp},
-        r: {w:right, b:down, y:left, g:up, o:opp},
-        o: {g:right, y:down, b:left, w:up, r:opp},
-        b: {o:right, y:down, r:left, w:up, g:opp},
-        g: {w:right, r:down, y:left, o:up, b:opp}
+        w: {o:right, b:down, r:left, g:up, y:back},
+        y: {g:right, r:down, b:left, o:up, w:back},
+        r: {w:right, b:down, y:left, g:up, o:back},
+        o: {g:right, y:down, b:left, w:up, r:back},
+        b: {o:right, y:down, r:left, w:up, g:back},
+        g: {w:right, r:down, y:left, o:up, b:back}
     }
     movementDirection2index: dict[Direction, tuple[str, int]] = { # mapping movement of SideDirection to row/column index
         up: ('x', 0),
@@ -49,7 +51,7 @@ class CubeStatics():
             'R': CubeStatics.direction2faceId[front][CubeStatics.side_directions[(rotate+1)%4]],
             'D': CubeStatics.direction2faceId[front][CubeStatics.side_directions[(rotate+2)%4]],
             'L': CubeStatics.direction2faceId[front][CubeStatics.side_directions[(rotate+3)%4]],
-            'B': CubeStatics.direction2faceId[front][opp],
+            'B': CubeStatics.direction2faceId[front][back],
             'F': front
         }
         i = 0

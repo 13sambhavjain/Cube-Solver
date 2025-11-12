@@ -1,6 +1,8 @@
-from colors import Color, Colors
+# standard lib imports
 import copy, warnings
-from directions import Direction
+# core imports
+from .colors import Color, Colors
+from .directions import Direction
 
 class Face:
     def __init__(self, size: int=3, fill_color: Color = None, grid: list[list[Color]] = None): #type: ignore

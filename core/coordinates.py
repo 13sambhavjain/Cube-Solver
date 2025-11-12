@@ -1,4 +1,5 @@
-from face import FaceId
+# core imports
+from .face import FaceId
 
 class Position():
     """Postion on a Face"""
@@ -27,8 +28,20 @@ class Position():
         return f'({self.x}, {self.y})'
 
     def __repr__(self) -> str:
-        return f'{self.__class__.__name__}({', '.join(f'{k}={v!r}' for k, v in vars(self).items())})'    
-    
+        return f'{self.__class__.__name__}({', '.join(f'{k}={v!r}' for k, v in vars(self).items())})'
+
+    def __eq__(self, other: object):
+        if isinstance(other, (Position, Coords)):
+            self.x == other.x and self.y == other.y
+        elif isinstance(other, tuple) and len(other) == 2:
+            self.x == other[0] and self.y == other[1]
+        else:
+            raise NotImplementedError
+        
+    def __hash__(self):
+        return hash(self.x, self.y)
+
+
 class Coords():
     # """Coordinates of a Color in a Cube with fix center"""
     def __init__(self, face_id: FaceId, x: int, y: int):
@@ -77,4 +90,15 @@ class Coords():
 
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}({', '.join(f'{k}={v!r}' for k, v in vars(self).items())})'
+    
+    def __eq__(self, other: object):
+        if isinstance(other, Coords):
+            self.face_id == other.face_id and self.x == other.x and self.y == other.y
+        elif isinstance(other, tuple) and len(other) == 3:
+            self.face_id == other[0] and self.x == other[1] and self.y == other[2]
+        else:
+            raise NotImplementedError
+        
+    def __hash__(self):
+        return hash(self.face_id, self.x, self.y)
     

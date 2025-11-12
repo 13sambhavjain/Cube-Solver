@@ -1,5 +1,7 @@
-from face import FaceId
+#  standard lib imports
 from copy import deepcopy
+# core imports
+from .face import FaceId
 
 class Move():
     def __init__(self, faceId: FaceId, turns: int=1):
