@@ -1,6 +1,6 @@
 from copy import copy, deepcopy
 import random
-from shortnames import *
+from core.shortnames import *
 # colors = [w,r,g,y,o,b]
 # sturcture =   # w
                 # b o

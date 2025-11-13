@@ -3,8 +3,10 @@ from functools import cache
 # core imports
 from .coordinates import Position, Coords
 from .cube_statics import CubeStatics
+from .cube import Cube
 from .directions import Direction
 from .shortnames import *
+from .face import FaceIds, FaceId
 
 class Cube3x3Statics(CubeStatics):
     sideDirection2edgePosition: dict[Direction, Position] = { # Coordinate of edges in a face grid of 3x3 Cube
@@ -16,7 +18,6 @@ class Cube3x3Statics(CubeStatics):
     cornerCoord: list[Position] = [
         Position(0, 0), Position(0, 2), Position(2, 2), Position(2, 0)
     ]
-
     @staticmethod
     def BackEdgePosition(position: Position) -> Position:
         """Given edge coordinates (i, j)(front), return the opposite(back) edge coordinates."""
@@ -28,12 +29,10 @@ class Cube3x3Statics(CubeStatics):
             return Position(i+1, j+1)
 
     @staticmethod
-    def cornerAfterRotation(coords, rotatingFace, check=True):
-        raise NotImplementedError
+    def cornerAfterRotation(coords, rotatingFace: FaceId, check=True) -> Coords:
         if check:
-            other1, other2 = Cube.CotherSide(*coords)
-            if rotatingFace not in (other1[0], other2[0]):
-                return coords
+            coords.pos in Cube3x3Statics.cornerCoord
+        raise NotImplementedError
         c,i,j = coords
         newFace = Cube.direction2color[rotatingFace][Cube.directions[Cube.directions.index(Cube.color2direction[rotatingFace][c]) - 3]]
         increment = (Cube.directions.index(Cube.color2direction[c][newFace]) - Cube.directions.index(Cube.color2direction[newFace][c]))%4
@@ -75,4 +74,20 @@ class Cube3x3Statics(CubeStatics):
                 return colors - {corner_coords}
         else:
             raise ValueError(f'Given coords are not of a corner {corner_coords!r}')
+        
+    @staticmethod
+    def isCorner(position: Position|Coords) -> bool:
+        if isinstance(position, Coords):
+            return position.pos in Cube3x3Statics.cornerCoord
+        return position in Cube3x3Statics.cornerCoord
+    
+class Cube3x3(Cube3x3Statics):
+    def __init__(self, *args, **kwargs):
+        Cube.__init__(self, size=3, *args, **kwargs)
+    
+
+
+
+
+
 
