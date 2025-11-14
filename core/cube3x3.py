@@ -56,7 +56,7 @@ class Cube3x3Statics(CubeStatics):
     
     @cache
     @staticmethod
-    def CotherSide(corner_coords: Coords):
+    def CornerOtherSide(corner_coords: Coords):
         # raise NotImplementedError
         # corner
         cornerColors = [
@@ -81,7 +81,7 @@ class Cube3x3Statics(CubeStatics):
             return position.pos in Cube3x3Statics.cornerCoord
         return position in Cube3x3Statics.cornerCoord
     
-class Cube3x3(Cube3x3Statics):
+class Cube3x3(Cube, Cube3x3Statics):
     def __init__(self, *args, **kwargs):
         Cube.__init__(self, size=3, *args, **kwargs)
     

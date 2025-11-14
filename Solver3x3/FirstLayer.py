@@ -1,112 +1,116 @@
-from core import Cube3x3Statics, CubeMovements, Cube3x3, Cube, back
+from core import Cube3x3Statics, CubeMovements, Cube3x3, Cube, back, Position, Coords
+from copy import deepcopy
 
 class FirstLayer():
-    def __init__(self, cube: Cube3x3) -> None:
+    def __init__(self, cube: Cube3x3, change_original: bool=True) -> None:
+        if not change_original:
+            cube = deepcopy(cube)
         self.cube: Cube3x3 = cube
     
-    def __getattribute__(self, name):
+    def __getattr__(self, name):
         return self.cube.name
-    
+     
+    def first_cross(self, start_faceid=None):
+        if start_faceid == None:
+            start_faceid = self.cube.start_faceId
+        placed_egde_colors = set()
+        last_faceid = self.cube.direction2faceId[start_faceid][back]
 
-    def first_cross(self, first_faceid=self.cube.):
-        # self = deepcopy(demoself)
-        done = set()
-        last = Cube.direction2color[first_faceid][back]
-        def color_on_top(i, j):
-            if self.state[first_faceid][i][j] != first_faceid:
+        def color_on_top(pos: Position):
+            if self.state[start_faceid][i][j] != start_faceid:
                 raise ValueError
-            otherSide = Cube.EotherSide(first_faceid, i, j)
+            otherSide = self.EdgeOtherSide(start_faceid, i, j)
             otherColor = self.state[otherSide[0]][otherSide[1]][otherSide[2]]
             if otherSide[0] == otherColor:
-                done.add(otherColor)
+                placed_egde_colors.add(otherColor)
                 return list()
-            if len(done) == 0:
+            if len(placed_egde_colors) == 0:
                 # rotate color logic
-                fromSide = Cube.color2direction[first_faceid][otherSide[0]]
-                toSide = Cube.color2direction[first_faceid][otherColor]
-                done.add(otherColor)
-                return [self.clockwise(first_faceid, Cube.directions.index(toSide) - Cube.directions.index(fromSide))]
+                fromSide = Cube.faceId2direction[start_faceid][otherSide[0]]
+                toSide = Cube.faceId2direction[start_faceid][otherColor]
+                placed_egde_colors.add(otherColor)
+                return [self.clockwise(start_faceid, Cube.side_directions.index(toSide) - Cube.side_directions.index(fromSide))]
             else:
                 moves = [self.clockwise(otherSide[0], 2)] 
                 li, lj = Cube.OppositeEdgeCoords(i, j)
-                if self.state[last][li][lj] != first_faceid:
+                if self.state[last_faceid][li][lj] != start_faceid:
                     raise Exception
                 return moves + color_on_bottom(li, lj)
         def color_on_bottom(i, j):
-            otherSide = self.EotherSide(last, i, j)
+            otherSide = self.EotherSide(last_faceid, i, j)
             otherColor = self.state[otherSide[0]][otherSide[1]][otherSide[2]]
-            fromSide = Cube.color2direction[last][otherSide[0]]
-            toSide = Cube.color2direction[last][otherColor]
-            done.add(otherColor)
-            return [self.clockwise(last, Cube.directions.index(toSide) - Cube.directions.index(fromSide)), self.clockwise(otherColor, 2)]
+            fromSide = Cube.faceId2direction[last_faceid][otherSide[0]]
+            toSide = Cube.faceId2direction[last_faceid][otherColor]
+            placed_egde_colors.add(otherColor)
+            return [self.clockwise(last_faceid, Cube.side_directions.index(toSide) - Cube.side_directions.index(fromSide)), self.clockwise(otherColor, 2)]
         
-        def color_on_side(c, i, j):
-            otherSide = Cube.EotherSide(c, i, j)
+        def color_on_side(coords: Coords):
+            otherSide = self.EdgeOtherSide(coords)
             otherColor = self.state[otherSide[0]][otherSide[1]][otherSide[2]]
             def color_on_side_top():
-                fromSide = Cube.color2direction[first_faceid][c]
-                toSide = Cube.color2direction[first_faceid][otherColor]
-                rotate = (Cube.directions.index(toSide) - Cube.directions.index(fromSide))
+                fromSide = Cube.faceId2direction[start_faceid][c]
+                toSide = Cube.faceId2direction[start_faceid][otherColor]
+                rotate = (Cube.side_directions.index(toSide) - Cube.side_directions.index(fromSide))
                 rotate %= 4 # rotating first for fromSide to reach toSide
-                done.add(otherColor)
+                placed_egde_colors.add(otherColor)
                 if rotate == 3:
-                    return self.apply(c,first_faceid, 'FR')
+                    return self.apply(c,start_faceid, 'FR')
                 if rotate == 2:
-                    return self.apply(c,first_faceid, 'FURU`')
+                    return self.apply(c,start_faceid, 'FURU`')
                 if rotate == 1:
-                    return self.apply(c,first_faceid, 'F`L`')
+                    return self.apply(c,start_faceid, 'F`L`')
                 if rotate == 0:
-                    return self.apply(c,first_faceid, 'FU`RU')
+                    return self.apply(c,start_faceid, 'FU`RU')
             def color_on_side_mid():
-                fromSide = Cube.color2direction[first_faceid][otherColor]
-                toSide = Cube.color2direction[first_faceid][otherSide[0]]
-                r1 = (Cube.directions.index(toSide) - Cube.directions.index(fromSide))
-                otherFrom = Cube.color2direction[otherSide[0]][c]
-                otherTo = Cube.color2direction[otherSide[0]][first_faceid]
-                r2 = (Cube.directions.index(otherTo) - Cube.directions.index(otherFrom))
-                done.add(otherColor)
-                return [self.clockwise(first_faceid, r1), self.clockwise(otherSide[0], r2), self.anticlockwise(first_faceid, r1)]
+                fromSide = Cube.faceId2direction[start_faceid][otherColor]
+                toSide = Cube.faceId2direction[start_faceid][otherSide[0]]
+                r1 = (Cube.side_directions.index(toSide) - Cube.side_directions.index(fromSide))
+                otherFrom = Cube.faceId2direction[otherSide[0]][c]
+                otherTo = Cube.faceId2direction[otherSide[0]][start_faceid]
+                r2 = (Cube.side_directions.index(otherTo) - Cube.side_directions.index(otherFrom))
+                placed_egde_colors.add(otherColor)
+                return [self.clockwise(start_faceid, r1), self.clockwise(otherSide[0], r2), self.anticlockwise(start_faceid, r1)]
             def color_on_side_bottom():
-                # fromSide = Cube.color2direction[first][otherColor]
+                # fromSide = Cube.faceId2direction[first][otherColor]
                 moves = None
                 if otherColor == c:
-                    return self.apply(c, first_faceid, 'F`U`RU')
+                    return self.apply(c, start_faceid, 'F`U`RU')
                 if otherColor == Cube.direction2color[c][opp]:
-                    moves = self.apply(c, first_faceid, 'F`URU`')
-                    if c in done:
+                    moves = self.apply(c, start_faceid, 'F`URU`')
+                    if c in placed_egde_colors:
                         moves.append(self.clockwise(c))
                     return moves
-                fromSide = Cube.color2direction[c][last]
-                toSide = Cube.color2direction[c][otherColor]
-                rotate = (Cube.directions.index(toSide) - Cube.directions.index(fromSide))%4
-                fromSide1 = Cube.color2direction[otherColor][c]
-                toSide1 = Cube.color2direction[otherColor][first_faceid]
-                rotate1 = (Cube.directions.index(toSide1) - Cube.directions.index(fromSide1))%4
+                fromSide = Cube.faceId2direction[c][last_faceid]
+                toSide = Cube.faceId2direction[c][otherColor]
+                rotate = (Cube.side_directions.index(toSide) - Cube.side_directions.index(fromSide))%4
+                fromSide1 = Cube.faceId2direction[otherColor][c]
+                toSide1 = Cube.faceId2direction[otherColor][start_faceid]
+                rotate1 = (Cube.side_directions.index(toSide1) - Cube.side_directions.index(fromSide1))%4
                 moves = [
                     self.clockwise(c, rotate),
                     self.clockwise(otherColor, rotate1)
                 ]
-                if c in done:
+                if c in placed_egde_colors:
                     moves.append(self.anticlockwise(c, rotate)) #changed from clock - to - anticlock
-                done.add(otherColor)
+                placed_egde_colors.add(otherColor)
                 return moves
 
-            if otherSide[0] == first_faceid:
+            if otherSide[0] == start_faceid:
                 return color_on_side_top()
-            elif otherSide[0] == last:
+            elif otherSide[0] == last_faceid:
                 return color_on_side_bottom()
             else:
                 return color_on_side_mid()
         # while len(done) < 4:
         cross_moves = list()
-        while(len(done) < 4):
+        while(len(placed_egde_colors) < 4):
             for c in self.state:
                 for i in range(3):
                     for j in range(3):
-                        if (i+j)&1 and self.state[c][i][j] == first_faceid:
-                            if c == first_faceid:
+                        if (i+j)&1 and self.state[c][i][j] == start_faceid:
+                            if c == start_faceid:
                                 cross_moves += color_on_top(i, j)
-                            elif c == last:
+                            elif c == last_faceid:
                                 cross_moves += color_on_bottom(i,j)
                             else:
                                 cross_moves += color_on_side(c, i, j)
