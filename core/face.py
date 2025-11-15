@@ -3,6 +3,7 @@ import copy, warnings
 # core imports
 from .colors import Color, Colors
 from .directions import Direction
+from .coordinates import Position
 
 class Face:
     def __init__(self, size: int=3, fill_color: Color = None, grid: list[list[Color]] = None): #type: ignore
@@ -85,6 +86,14 @@ class Face:
                 self.grid[i][s - depth] = colors[i]
         else:
             raise ValueError(f"Invalid direction {direction} for setting edge.")
+        
+    def get(self, pos: Position) -> Color:
+        "Given Position returns the Color at the Position in the face grid"
+        return self.grid[pos.x][pos.y]
+    
+    def set(self, pos: Position, value: Color):
+        "Given Position returns the Color at the Position in the face grid"
+        self.grid[pos.x][pos.y] = value
     
     def __iter__(self):
         return iter(self.grid)

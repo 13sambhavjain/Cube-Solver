@@ -32,7 +32,7 @@ class FirstLayer():
                 return [self.clockwise(start_faceid, Cube.side_directions.index(toSide) - Cube.side_directions.index(fromSide))]
             else:
                 moves = [self.clockwise(otherSide[0], 2)] 
-                li, lj = Cube.OppositeEdgeCoords(i, j)
+                li, lj = Cube.BackEdgeCoords(i, j)
                 if self.state[last_faceid][li][lj] != start_faceid:
                     raise Exception
                 return moves + color_on_bottom(li, lj)

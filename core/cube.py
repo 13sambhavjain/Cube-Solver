@@ -94,6 +94,14 @@ class Cube(CubeMovements, CubeStatics):
     def __str__(self) -> str:
         return self.__format__(self.default_print_format)
     
+    def get(self, coords: Coords) -> Color:
+        "Given Coords returns the Color at coords in cube state"
+        return self.state[coords.face_id].get(coords.pos)
+    
+    def set(self, coords: Coords, value: Color):
+        "Given Coords returns the Color at coords in cube state"
+        self.state[coords.face_id].set(coords.pos, value)
+    
 if __name__ == "__main__":
     import sys, os
     sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
