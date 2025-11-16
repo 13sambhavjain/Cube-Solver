@@ -16,11 +16,18 @@ class FirstLayer():
         placed_egde_colors = set()
         last_faceid = self.cube.direction2faceId[start_faceid][back]
 
+
         def color_on_top(pos: Position):
-            if self.state[start_faceid][i][j] != start_faceid:
+            if self.state[start_faceid].get(pos) != start_faceid:
                 raise ValueError
-            otherSide = self.EdgeOtherSide(start_faceid, i, j)
-            otherColor = self.state[otherSide[0]][otherSide[1]][otherSide[2]]
+            otherSide = Cube3x3.EdgeOtherSide(Coords(start_faceid, pos.x, pos.y))
+            otherColor = self.state[otherSide[0]][][]
+            if otherSide[0] == otherColor:
+        def color_on_top(pos: Position):
+            if self.state[start_faceid].get(pos) != start_faceid:
+                raise ValueError
+            otherSide = Cube3x3.EdgeOtherSide(Coords(start_faceid, pos.x, pos.y))
+            otherColor = self.state[otherSide[0]][][]
             if otherSide[0] == otherColor:
                 placed_egde_colors.add(otherColor)
                 return list()
