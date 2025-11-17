@@ -19,14 +19,14 @@ class Cube3x3Statics(CubeStatics):
         Position(0, 0), Position(0, 2), Position(2, 2), Position(2, 0)
     ]
     @staticmethod
-    def BackEdgePosition(position: Position) -> Position:
+    def BackEdgeCoords(coords: Coords) -> Coords:
         """Given edge coordinates (i, j)(front), return the opposite(back) edge coordinates."""
         # implement edge check
-        i, j = position
+        i, j = coords.pos
         if (i+j) == 3:
-            return Position(i-1, j-1)
+            return Coords(Cube.direction2faceId[coords.face_id][back], i-1, j-1)
         else: #if edge then i+j == 1
-            return Position(i+1, j+1)
+            return Coords(Cube.direction2faceId[coords.face_id][back], i+1, j+1)
 
     @staticmethod
     def cornerAfterRotation(coords, rotatingFace: FaceId, check=True) -> Coords:

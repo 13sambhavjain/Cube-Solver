@@ -75,9 +75,10 @@ class Move():
         return otherCopy
 
 class Moves():
-    def __init__(self, moves: list[Move] = None, efficient: bool = False): #type: ignore
+    def __init__(self, moves: list[Move] = None, comment:str = '', efficient: bool = False): #type: ignore
         self.moves: list[Move] = moves if moves is not None else list()
         self.efficient: bool = efficient
+        self.comment: str = comment
 
     def append(self, move: Move) -> None:
         if not move:
@@ -119,6 +120,8 @@ class Moves():
         elif isinstance(other, Moves):
             for move in other:
                 result.append(move)
+            result.efficient = self.efficient and other.efficient
+            result.comment = self.comment + '\n' if other.comment else "" + other.comment
         return result
     
     def __str__(self) -> str:
@@ -145,7 +148,7 @@ class Moves():
         return iter(self.moves)
     
     def __repr__(self) -> str:
-        return f'Moves(moves={self.moves}, efficient={self.efficient})'
+        return f'Moves(moves={self.moves}, comment={self.comment}, efficient={self.efficient})'
 
     def __contains__(self, move: Move) -> bool:
         return move in self.moves

@@ -41,6 +41,14 @@ class CubeStatics():
         right: ('y', -1),
         left: ('y', 0)
     }
+
+    @staticmethod
+    def faceId2color(faceid: FaceId) -> Color:
+        return faceid
+    
+    @staticmethod
+    def color2faceId(color: Color) -> FaceId:
+        return color
     
     @staticmethod
     def formula2Moves(front: FaceId, top: FaceId, formula: str) -> Moves:
