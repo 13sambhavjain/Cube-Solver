@@ -7,23 +7,6 @@ class Move():
     def __init__(self, faceId: FaceId, turns: int=1):
         self.faceId: FaceId = faceId
         self._turns: int = turns%4
-
-    def __iter__(self):
-        yield self.faceId
-        yield self.turns
-
-    def __getitem__(self, index: int) -> FaceId|int:
-        index %= 2
-        if index==0:
-            return self.faceId
-        return self.turns
-    
-    def __setitem__(self, index: int, value: FaceId|int) -> None:
-        index %= 2
-        if index==0:
-            self.faceId = value  # type: ignore
-        else:
-            self.turns = value  # type: ignore
     
     @property
     def turns(self) -> int:
@@ -31,6 +14,9 @@ class Move():
     @turns.setter
     def turns(self, value: int) -> None:
         self._turns = value % 4
+
+    def unmove(self) -> Move:
+        return Move(self.faceId, -self.turns)
     
     def __str__(self) -> str:
         face_letter: str = self.faceId.__format__('i').strip()
@@ -73,6 +59,24 @@ class Move():
         if self:
             otherCopy.insert(0, self)
         return otherCopy
+    
+    # currently unused
+    # def __iter__(self):
+    #     yield self.faceId
+    #     yield self.turns
+
+    # def __getitem__(self, index: int) -> FaceId|int:
+    #     index %= 2
+    #     if index==0:
+    #         return self.faceId
+    #     return self.turns
+    
+    # def __setitem__(self, index: int, value: FaceId|int) -> None:
+    #     index %= 2
+    #     if index==0:
+    #         self.faceId = value  # type: ignore
+    #     else:
+    #         self.turns = value  # type: ignore
 
 class Moves():
     def __init__(self, moves: list[Move] = None, comment:str = '', efficient: bool = False): #type: ignore
@@ -121,7 +125,7 @@ class Moves():
             for move in other:
                 result.append(move)
             result.efficient = self.efficient and other.efficient
-            result.comment = self.comment + '\n' if other.comment else "" + other.comment
+            result.comment = self.comment + ('\n' if other.comment else "" )+ other.comment
         return result
     
     def __str__(self) -> str:

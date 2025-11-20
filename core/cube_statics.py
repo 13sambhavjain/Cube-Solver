@@ -49,7 +49,26 @@ class CubeStatics():
     @staticmethod
     def color2faceId(color: Color) -> FaceId:
         return color
+
+    @staticmethod
+    def turns4directionchange(start_direction: Direction, end_direction: Direction, check: bool=True) -> int:
+        start_index = CubeStatics.side_directions.index(start_direction)
+        end_index = CubeStatics.side_directions.index(end_direction)
+        if check and (start_index < 0 or end_index < 0):
+            raise ValueError(f"Given Directions are not in side_direction, ({start_direction=}, {end_direction=})")
+        return (end_index - start_index)%4
     
+    @staticmethod
+    def turns4faceIdchange(turning_faceId: FaceId, start_faceId: FaceId, end_faceId: FaceId) -> int:
+        start_direction = CubeStatics.faceId2direction[turning_faceId][start_faceId]
+        end_direction = CubeStatics.faceId2direction[turning_faceId][end_faceId]
+        return CubeStatics.turns4directionchange(start_direction, end_direction)
+    
+    @staticmethod
+    def move4faceIdchange(turning_faceId: FaceId, start_faceId: FaceId, end_faceId: FaceId) -> Move:
+        return Move(turning_faceId, CubeStatics.turns4faceIdchange(turning_faceId, start_faceId, end_faceId))
+
+        
     @staticmethod
     def formula2Moves(front: FaceId, top: FaceId, formula: str) -> Moves:
         moves = Moves()

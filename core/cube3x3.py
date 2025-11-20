@@ -15,8 +15,22 @@ class Cube3x3Statics(CubeStatics):
         right: Position(1, 2),
         left: Position(1, 0)
     }
-    cornerCoord: list[Position] = [
+
+    corner_positions: list[Position] = [
         Position(0, 0), Position(0, 2), Position(2, 2), Position(2, 0)
+    ]
+    edge_positions: list[Position] = [
+        Position(0, 1), Position(1, 0), Position(1, 2), Position(2, 1)
+    ]
+    corner_coords_sets :list[set[Coords]]= [
+        {Coords(w, 0, 0), Coords(g, 2, 2), Coords(r, 0, 2)},
+        {Coords(w, 0, 2), Coords(o, 0, 2), Coords(g, 0, 2)},
+        {Coords(w, 2, 0), Coords(b, 0, 0), Coords(r, 2, 2)},
+        {Coords(w, 2, 2), Coords(b, 0, 2), Coords(o, 0, 0)},
+        {Coords(y, 0, 0), Coords(b, 2, 2), Coords(o, 2, 0)},
+        {Coords(y, 0, 2), Coords(o, 2, 2), Coords(g, 0, 0)},
+        {Coords(y, 2, 0), Coords(b, 2, 0), Coords(r, 2, 0)},
+        {Coords(y, 2, 2), Coords(g, 2, 0), Coords(r, 0, 0)}
     ]
     @staticmethod
     def BackEdgeCoords(coords: Coords) -> Coords:
@@ -31,7 +45,7 @@ class Cube3x3Statics(CubeStatics):
     @staticmethod
     def cornerAfterRotation(coords, rotatingFace: FaceId, check=True) -> Coords:
         if check:
-            coords.pos in Cube3x3Statics.cornerCoord
+            coords.pos in Cube3x3Statics.corner_positions
         raise NotImplementedError
         c,i,j = coords
         newFace = Cube.direction2color[rotatingFace][Cube.directions[Cube.directions.index(Cube.color2direction[rotatingFace][c]) - 3]]
@@ -56,30 +70,38 @@ class Cube3x3Statics(CubeStatics):
     
     @cache
     @staticmethod
-    def CornerOtherSide(corner_coords: Coords):
+    def corner_other_coords(corner_coords: Coords) -> set[Coords]:
         # raise NotImplementedError
         # corner
-        cornerColors = [
-            {Coords(w, 0, 0), Coords(g, 2, 2), Coords(r, 0, 2)},
-            {Coords(w, 0, 2), Coords(o, 0, 2), Coords(g, 0, 2)},
-            {Coords(w, 2, 0), Coords(b, 0, 0), Coords(r, 2, 2)},
-            {Coords(w, 2, 2), Coords(b, 0, 2), Coords(o, 0, 0)},
-            {Coords(y, 0, 0), Coords(b, 2, 2), Coords(o, 2, 0)},
-            {Coords(y, 0, 2), Coords(o, 2, 2), Coords(g, 0, 0)},
-            {Coords(y, 2, 0), Coords(b, 2, 0), Coords(r, 2, 0)},
-            {Coords(y, 2, 2), Coords(g, 2, 0), Coords(r, 0, 0)}
-        ]
-        for colors in cornerColors:
-            if corner_coords in colors:
-                return colors - {corner_coords}
+        for corner_coord_set in Cube3x3.corner_coords_sets:
+            if corner_coords in corner_coord_set:
+                return corner_coord_set - {corner_coords}
         else:
             raise ValueError(f'Given coords are not of a corner {corner_coords!r}')
         
     @staticmethod
-    def isCorner(position: Position|Coords) -> bool:
+    def is_corner(position: Position|Coords) -> bool:
         if isinstance(position, Coords):
-            return position.pos in Cube3x3Statics.cornerCoord
-        return position in Cube3x3Statics.cornerCoord
+            return position.pos in Cube3x3Statics.corner_positions
+        return position in Cube3x3Statics.corner_positions
+    
+    @staticmethod
+    def is_edge(position: Position|Coords) -> bool:
+        if isinstance(position, Coords):
+            return position.pos in Cube3x3Statics.edge_positions
+        return position in Cube3x3Statics.edge_positions
+    
+    @staticmethod
+    def corner_coords():
+        for face_id in Cube3x3.faceIds:
+            for pos in Cube3x3.corner_positions:
+                yield Coords(face_id, *pos)
+
+    @staticmethod
+    def edge_coords():
+        for face_id in Cube3x3.faceIds:
+            for pos in Cube3x3.edge_positions:
+                yield Coords(face_id, *pos)
     
 class Cube3x3(Cube, Cube3x3Statics):
     def __init__(self, *args, **kwargs):

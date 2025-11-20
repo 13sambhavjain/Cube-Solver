@@ -1,46 +1,5 @@
 # core imports
-from .face import FaceId
-
-class Position():
-    """Postion on a Face"""
-    def __init__(self, x: int, y: int):
-        self.x: int = x
-        self.y: int = y
-
-    def __getitem__(self, index: int) -> int:
-        index %= 2
-        if index==1:
-            return self.y
-        return self.x
-
-    def __setitem__(self, index: int, value: int) -> None:
-        index %= 2
-        if index==1:
-            self.y = value
-        else:
-            self.x = value
-    
-    def __iter__(self):
-        yield self.x
-        yield self.y
-    
-    def __str__(self) -> str:
-        return f'({self.x}, {self.y})'
-
-    def __repr__(self) -> str:
-        return f'{self.__class__.__name__}({', '.join(f'{k}={v!r}' for k, v in vars(self).items())})'
-
-    def __eq__(self, other: object):
-        if isinstance(other, (Position, Coords)):
-            self.x == other.x and self.y == other.y
-        elif isinstance(other, tuple) and len(other) == 2:
-            self.x == other[0] and self.y == other[1]
-        else:
-            raise NotImplementedError
-        
-    def __hash__(self):
-        return hash(self.x, self.y)
-
+from .face import FaceId, Position
 
 class Coords():
     # """Coordinates of a Color in a Cube with fix center"""
@@ -93,12 +52,12 @@ class Coords():
     
     def __eq__(self, other: object):
         if isinstance(other, Coords):
-            self.face_id == other.face_id and self.x == other.x and self.y == other.y
+            return self.face_id == other.face_id and self.x == other.x and self.y == other.y
         elif isinstance(other, tuple) and len(other) == 3:
-            self.face_id == other[0] and self.x == other[1] and self.y == other[2]
+            return self.face_id == other[0] and self.x == other[1] and self.y == other[2]
         else:
-            raise NotImplementedError
+            return NotImplemented
         
     def __hash__(self):
-        return hash(self.face_id, self.x, self.y)
+        return hash((self.face_id, self.x, self.y))
     

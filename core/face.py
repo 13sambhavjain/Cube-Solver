@@ -3,7 +3,38 @@ import copy, warnings
 # core imports
 from .colors import Color, Colors
 from .directions import Direction
-from .coordinates import Position
+
+class Position():
+    """Postion on a Face"""
+    def __init__(self, x: int, y: int):
+        self.x: int = x
+        self.y: int = y
+
+    def __getitem__(self, index: int) -> int:
+        index %= 2
+        if index==1:
+            return self.y
+        return self.x
+
+    def __setitem__(self, index: int, value: int) -> None:
+        index %= 2
+        if index==1:
+            self.y = value
+        else:
+            self.x = value
+    
+    def __iter__(self):
+        yield self.x
+        yield self.y
+    
+    def __str__(self) -> str:
+        return f'({self.x}, {self.y})'
+
+    def __repr__(self) -> str:
+        return f'{self.__class__.__name__}({', '.join(f'{k}={v!r}' for k, v in vars(self).items())})'
+
+    def __hash__(self):
+        return hash(self.x, self.y)
 
 class Face:
     def __init__(self, size: int=3, fill_color: Color = None, grid: list[list[Color]] = None): #type: ignore

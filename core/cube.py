@@ -12,10 +12,15 @@ from .cube_statics import CubeStatics
 class Cube(CubeMovements, CubeStatics):
     """Class(Structur and functions) of a 3x3 Rubick's Cube"""
 
-    def __init__(self, size:int = 3, start_faceId: FaceId = w, *, default_print_format: str = 'i'):
+    def __init__(self, *, 
+                 size:int = 3, 
+                 start_faceId: FaceId = w, 
+                 default_print_format: str = 'i', 
+                 state: dict[FaceId, Face]=None #type: ignore
+                 ) -> None:
         """Initialize a Cube(Solved) of given size."""
         self.size: int = size
-        self.state: dict[FaceId, Face] = Cube.getSolvedState(self.size)
+        self.state: dict[FaceId, Face] = state if state else Cube.getSolvedState(self.size)
         self.start_faceId: FaceId = start_faceId
         self.default_print_format: str = default_print_format
 

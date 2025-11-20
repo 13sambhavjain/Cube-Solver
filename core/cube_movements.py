@@ -19,10 +19,13 @@ class CubeMovements(CubeStatics):
     def apply_scramble(self, scramble: str) -> Moves:
         return self.apply_formula(FaceId.green, FaceId.white, scramble)
 
-    def apply_moves(self, moves: Moves) -> Moves:
+    def apply_moves(self, moves: Moves, debug=False) -> Moves:
         moves.make_efficient()
         for move in moves:
             self.make_move(move)
+            if debug:
+                print(move)
+                print(self)
         return moves
 
     def clockwise(self, face_id: FaceId) -> Move:
@@ -49,7 +52,7 @@ class CubeMovements(CubeStatics):
         edges = [self[f].get_edge(d) for f, d in neighbors]
         
         for (f, d), new_edge in zip(neighbors, edges[2:] + edges[:2]):  # 180° rotation
-            self[f].set_edge(d, new_edge[::-1])  # reverse edge orientation
+            self[f].set_edge(d, new_edge)  
         return Move(face_id, 2)
     
     def make_move(self, move: Move) -> Move:

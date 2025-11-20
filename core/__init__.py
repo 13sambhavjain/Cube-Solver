@@ -11,6 +11,6 @@ from .cube3x3 import Cube3x3Statics, Cube3x3
 
 __all__ = [
     "Color", "Colors", "Direction", "SideDirections", "Face", "FaceId", "FaceIds", "Move", "Moves",
-    "Position", "Coords", "CubeStatics", "CubeMovements", "Cube", "Cube3x3Statics"
-    "w", "r", "g", "y", "o", "b", "up", "down", "left", "right", "back", "front"
+    "Position", "Coords", "CubeStatics", "CubeMovements", "Cube", "Cube3x3Statics", "Cube3x3",
+    "w", "r", "g", "y", "o", "b", "up", "down", "left", "right", "back"
 ]
