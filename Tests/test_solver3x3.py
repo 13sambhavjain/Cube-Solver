@@ -1,5 +1,5 @@
 from core import Cube3x3, w, Moves
-from solver3x3 import FirstCross, FirstCorners
+from solver3x3.first_layer import FirstCross, FirstCorners
 
 
 def testFirstCross(*,numberOfCases: int=1000, scrambleLimit: int= 10, breakAtFirstFail: bool=False, getpasses: int = 10) -> dict[str,list[dict[str,Moves]]]:

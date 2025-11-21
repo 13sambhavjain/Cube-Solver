@@ -28,6 +28,14 @@ class BaseSolver3x3():
                 return False
         return True
     
+    def check_first_layer(self) -> bool:
+        face = self.cube.state[self.start_faceid]
+        for i in range(self.cube.size):
+            for j in range(self.cube.size):
+                if face[i][j] != self.start_color:
+                    return False
+        return True
+    
     def checkRaise_start_color_on_startface_coords(self, coords: Coords):
         if coords.face_id != self.start_faceid:
             raise ValueError("Coords are not on start face." + repr(coords))
