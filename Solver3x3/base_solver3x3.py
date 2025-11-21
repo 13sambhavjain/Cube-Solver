@@ -10,6 +10,11 @@ class BaseSolver3x3():
         self.start_faceid: FaceId = start_faceid if start_faceid else self.cube.start_faceId
         self.start_color: Color = Cube3x3.faceId2color(self.start_faceid)
         self.last_faceid: FaceId = Cube3x3.direction2faceId[self.start_faceid][back]
+        self.last_color: Color = Cube3x3.faceId2color(self.last_faceid)
+        self.side_faceids: list[FaceId] = list(map(
+                                                lambda side_direction: Cube3x3.direction2faceId[self.start_faceid][side_direction],
+                                                Cube3x3.side_directions
+                                            ))
 
     def __getattr__(self, name):
         return self.cube.name
@@ -35,6 +40,19 @@ class BaseSolver3x3():
                 if face[i][j] != self.start_color:
                     return False
         return True
+
+    def check_second_layer(self) -> bool:
+        for faceid in self.side_faceids:
+            face_color = Cube3x3.faceId2color(faceid)
+            not_to_check = Cube3x3.faceId2direction[faceid][self.start_faceid], Cube3x3.faceId2direction[faceid][self.last_faceid]
+            for direction in Cube3x3.side_directions:
+                if direction in not_to_check:
+                    continue
+                pos = Cube3x3.sideDirection2edgePosition[direction]
+                if self.cube.state[faceid].get(pos) != face_color:
+                    return False
+        return True
+
     
     def checkRaise_start_color_on_startface_coords(self, coords: Coords):
         if coords.face_id != self.start_faceid:
