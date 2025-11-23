@@ -11,10 +11,6 @@ class BaseSolver3x3():
         self.start_color: Color = Cube3x3.faceId2color(self.start_faceid)
         self.last_faceid: FaceId = Cube3x3.direction2faceId[self.start_faceid][back]
         self.last_color: Color = Cube3x3.faceId2color(self.last_faceid)
-        self.side_faceids: list[FaceId] = list(map(
-                                                lambda side_direction: Cube3x3.direction2faceId[self.start_faceid][side_direction],
-                                                Cube3x3.side_directions
-                                            ))
 
     def __getattr__(self, name):
         return self.cube.name

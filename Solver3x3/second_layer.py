@@ -79,4 +79,6 @@ class FirstSecondLayer(FirstLayer, SecondLayer):
 
     def solve_till_second_layer(self):
         return self.solve_first_layer() + self.solve_second_layer()
+    
+    
 

@@ -9,12 +9,15 @@ class CubeMovements(CubeStatics):
     Requires the implementing class to support __getitem__, __setitem__,
     and get_neighbors().
     """
-    def apply_formula(self, front: FaceId, top: FaceId, *formulas: str) -> Moves:
+    def apply_formula(self, front: FaceId, top: FaceId, *formulas: str, makecomment=False) -> Moves:
         moves = Moves()
         for formula in formulas:
             current_moves = CubeStatics.formula2Moves(front, top, formula)
             moves.extend(current_moves)
-        return self.apply_moves(moves)
+        moves = self.apply_moves(moves)
+        if makecomment:
+            moves.comment = f"Applying formula: {formulas} from {front=} and {top=}."
+        return moves
     
     def apply_scramble(self, scramble: str) -> Moves:
         return self.apply_formula(FaceId.green, FaceId.white, scramble)

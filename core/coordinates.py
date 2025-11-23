@@ -3,9 +3,13 @@ from .face import FaceId, Position
 
 class Coords():
     # """Coordinates of a Color in a Cube with fix center"""
-    def __init__(self, face_id: FaceId, x: int, y: int):
+    def __init__(self, face_id: FaceId, x: int=None, y: int=None, *, pos:Position=None): #type: ignore
         self.face_id: FaceId = face_id
-        self.pos: Position = Position(x, y)
+        self.pos = pos
+        if x != None and y != None:
+            self.pos: Position = Position(x, y) #type: ignore
+        elif pos is None:
+            raise ValueError(f"Need to pass either pos or x and y both")
 
     @property
     def x(self) -> int:

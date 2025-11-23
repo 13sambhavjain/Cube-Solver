@@ -8,6 +8,7 @@ from .directions import SideDirections, Direction
 from .moves import Moves, Move
 from .face import Face, FaceId
 from .shortnames import *
+from .formula_notations import *
 
 class CubeStatics():
     # colors = [w,r,g,y,o,b]
@@ -68,35 +69,120 @@ class CubeStatics():
     def move4faceIdchange(turning_faceId: FaceId, start_faceId: FaceId, end_faceId: FaceId) -> Move:
         return Move(turning_faceId, CubeStatics.turns4faceIdchange(turning_faceId, start_faceId, end_faceId))
 
-        
     @staticmethod
-    def formula2Moves(front: FaceId, top: FaceId, formula: str) -> Moves:
-        moves = Moves()
+    def relative_direction2faceid(front: FaceId, top: FaceId, direction: Direction) -> FaceId:
+        rotate = CubeStatics.side_directions.index(CubeStatics.faceId2direction[front][top])
+        if direction == right:
+            ans = CubeStatics.direction2faceId[front][CubeStatics.side_directions[(rotate+1)%4]]
+        elif direction == left:
+            ans = CubeStatics.direction2faceId[front][CubeStatics.side_directions[(rotate-1)%4]]
+        elif direction == up:
+            ans = top
+        elif direction == down:
+            ams = CubeStatics.direction2faceId[top][back]
+        elif direction == back:
+            ams = CubeStatics.direction2faceId[front][back]
+        else:
+            ans = front        
+        return ans
+    
+    @cache
+    @staticmethod
+    def direction_map(front: FaceId, top: FaceId) -> dict[str, FaceId]:
         rotate = CubeStatics.side_directions.index(CubeStatics.faceId2direction[front][top])
         direction_map: dict[str, FaceId] = {
-            'U': CubeStatics.direction2faceId[front][CubeStatics.side_directions[rotate]],
+            'U': top,
             'R': CubeStatics.direction2faceId[front][CubeStatics.side_directions[(rotate+1)%4]],
-            'D': CubeStatics.direction2faceId[front][CubeStatics.side_directions[(rotate+2)%4]],
+            'D': CubeStatics.direction2faceId[top][back],
             'L': CubeStatics.direction2faceId[front][CubeStatics.side_directions[(rotate+3)%4]],
             'B': CubeStatics.direction2faceId[front][back],
             'F': front
         }
+        return direction_map
+
+        
+    @staticmethod
+    def formula2Moves(front: FaceId, top: FaceId, formula: str) -> Moves:
+        formula = formula.replace(" ", "")
+        moves = Moves()
+        direction_map = CubeStatics.direction_map(front, top)
         i = 0
         n = len(formula) - 1
-        while i < n:
-            if formula[i+1] in ['`', "'"]:
-                moves.append(Move(direction_map[formula[i]], -1))
-                i += 2
-            elif formula[i+1] in ['2', '\u00b2']:
-                moves.append(Move(direction_map[formula[i]], 2))
-                i += 2
+        def cube_rotation2fronttop(rotation: str, turns: int = 1) -> tuple[FaceId, FaceId]:
+            turns %= 4
+            nonlocal direction_map
+            cube_rotation_map = {
+                ('x', 1): (direction_map['D'], front),
+                ('x', 2): (direction_map['B'], direction_map['D']),
+                ('x', 3): (top, direction_map['B']),
+                ('y', 1): (direction_map['R'], top),
+                ('y', 2): (direction_map['B'], top),
+                ('y', 3): (direction_map['L'], top),
+                ('z', 1): (front, direction_map['L']),
+                ('z', 2): (front, direction_map['D']),
+                ('z', 3): (front, direction_map['R']),
+            }
+            return cube_rotation_map[(rotation, turns)]
+        
+        def wide_move2fronttop(wide_move: str, turns: int) -> tuple[FaceId, FaceId]:
+            if wide_move == 'f':
+                return cube_rotation2fronttop('z', turns)
+            elif wide_move == 'r':
+                return cube_rotation2fronttop('x', turns)
+            elif wide_move == 'u':
+                return cube_rotation2fronttop('y', turns)
+            elif wide_move == 'l':
+                return cube_rotation2fronttop('x', -turns)
+            elif wide_move == 'b':
+                return cube_rotation2fronttop('z', -turns)
+            elif wide_move == 'd':
+                return cube_rotation2fronttop('y', -turns)
+            raise NotImplementedError
+        
+        def changesby_slice_move(slice: str, turns: int) -> None:
+            nonlocal moves, direction_map
+            if slice == 'M':
+                moves.append(Move(direction_map['L'], turns))
+                moves.append(Move(direction_map['R'], -turns))
+                direction_map = CubeStatics.direction_map(*cube_rotation2fronttop('x', -turns))
+            elif slice == 'E':
+                moves.append(Move(direction_map['D'], turns))
+                moves.append(Move(direction_map['U'], -turns))
+                direction_map = CubeStatics.direction_map(*cube_rotation2fronttop('y', -turns))
+            elif slice == 'S':
+                moves.append(Move(direction_map['F'], turns))
+                moves.append(Move(direction_map['B'], -turns))
+                direction_map = CubeStatics.direction_map(*cube_rotation2fronttop('z', turns))
             else:
-                moves.append(Move(direction_map[formula[i]]))
-                i += 1
-        if i == n:
-            moves.append(Move(direction_map[formula[i]]))
+                raise NotImplementedError
 
+        def char_turns2changes(char: str, turns: int) -> None:
+            nonlocal moves, direction_map
+            if char in BASIC_MOVES:
+                moves.append(Move(direction_map[char], turns))
+            elif char in WIDE_MOVES:
+                # opp move and cube_rotation
+                moves.append(Move(CubeStatics.direction2faceId[direction_map[char.upper()]][back], turns))
+                direction_map = CubeStatics.direction_map(*wide_move2fronttop(char, turns))
+            elif char in ROTATION_MOVES:
+                # cube rotation
+                direction_map = CubeStatics.direction_map(*cube_rotation2fronttop(char, turns))
+            elif char in SLICE_MOVES:
+                changesby_slice_move(char, turns)
+            else: 
+                raise NotImplementedError(f"{char} as a formula move is not implemented.")
+            
+
+        while i < n:
+            char = formula[i]
+            turns = 3 if formula[i+1] in ANTICLOCKWISE_TURN else (2 if formula[i+1] in DOUBLE_TURN else 1)
+            i += 1 if turns == 1 else 2
+            char_turns2changes(char, turns)
+        if i == n:
+            char_turns2changes(formula[i], 1)
         return moves
+    
+    
     
     @classmethod
     @cache

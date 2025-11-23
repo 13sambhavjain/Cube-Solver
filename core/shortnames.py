@@ -13,3 +13,4 @@ left = Direction.left
 up = Direction.up
 down = Direction.down
 back = Direction.back
+front = Direction.front

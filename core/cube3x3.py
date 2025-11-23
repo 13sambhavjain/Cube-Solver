@@ -11,8 +11,8 @@ from .face import FaceIds, FaceId
 class Cube3x3Statics(CubeStatics):
     sideDirection2edgePosition: dict[Direction, Position] = { # Coordinate of edges in a face grid of 3x3 Cube
         up: Position(0,1),
-        down: Position(2, 1),
         right: Position(1, 2),
+        down: Position(2, 1),
         left: Position(1, 0)
     }
 
@@ -20,7 +20,7 @@ class Cube3x3Statics(CubeStatics):
         Position(0, 0), Position(0, 2), Position(2, 2), Position(2, 0)
     ]
     edge_positions: list[Position] = [
-        Position(0, 1), Position(1, 0), Position(1, 2), Position(2, 1)
+        Position(0, 1), Position(1, 2), Position(2, 1), Position(1, 0)
     ]
     corner_coords_sets :list[set[Coords]]= [
         {Coords(w, 0, 0), Coords(g, 2, 2), Coords(r, 0, 2)},
