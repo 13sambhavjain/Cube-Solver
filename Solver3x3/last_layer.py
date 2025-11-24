@@ -2,6 +2,7 @@ from . import BaseSolver3x3
 from core import Cube3x3, up, Coords, FaceId, Move, Moves, Color, Position, down, left, Direction, front, back
 from .solving_algos import Algo
 from functools import cache
+
 class LastLayer(BaseSolver3x3):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
@@ -36,7 +37,7 @@ class LastLayer(BaseSolver3x3):
     #     moves = self.cube.apply_formula(front, self.last_faceid, formula)
     #     moves.comment = f"Dot before yellow Cross: {formula}"
     #     return moves
-    def apply_algo(self, front: FaceId, algo: Algo) -> Moves:
+    def apply_algo(self, front: FaceId, algo) -> Moves:
         moves = self.cube.apply_formula(front, self.last_faceid, algo)
         moves.comment = f"Appling Algo ({algo.name}: {algo.value}) from FaceId: {front}."
         return moves
@@ -63,7 +64,9 @@ class LastLayer(BaseSolver3x3):
                     Cube3x3.EdgeOtherSide(Coords(self.last_faceid, pos=cross_yellow_pos[1])).face_id,
                     Algo.OLL.Edges.L_shape
                 )
-        raise NotImplementedError
+        else:
+            print(f"Len {cross_yellow_pos=} is 3")
+            raise NotImplementedError
     
     def solve_OLL_corners(self):
         side_face_with_lastcolor: dict[FaceId, Coords] = dict()
@@ -82,7 +85,7 @@ class LastLayer(BaseSolver3x3):
                     lastcolor_count2faceidlist[0][0], 
                     Algo.OLL.Corners.H
                 )
-            else:
+            elif len(lastcolor_count2faceidlist[2]) == 1:
                 if len(lastcolor_count2faceidlist[1]) == 0:
                     # just headlights
                     return self.apply_algo(
@@ -95,26 +98,69 @@ class LastLayer(BaseSolver3x3):
                         self.prev_faceid(lastcolor_count2faceidlist[2][0]), 
                         Algo.OLL.Corners.Pi
                     )
+            else:
+                print("lastcolor_count2faceidlist[2] lenght is", len(lastcolor_count2faceidlist[2]))
+                raise Exception
         elif lastcolor_count2faceidlist[1]:
-            if lastcolor_count2faceidlist[1] == 3:
+            if len(lastcolor_count2faceidlist[1]) == 3:
                 if self.cube.get(self.connectingCoords_withlastface(lastcolor_count2faceidlist[1][0])[0]) == self.last_color:
                     # Sune
                     return self.apply_algo(
                         self.prev_faceid(lastcolor_count2faceidlist[0][0]), 
                         Algo.OLL.Corners.Sune
                     )
-                else:
+                elif self.cube.get(self.connectingCoords_withlastface(lastcolor_count2faceidlist[1][0])[-1]) == self.last_color:
                     # AntiSune
                     return self.apply_algo(
-                        Cube3x3.direction2faceId[lastcolor_count2faceidlist[0][0]][back], 
-                        Algo.OLL.Corners.Sune
+                        self.back_faceid(lastcolor_count2faceidlist[0][0]), 
+                        Algo.OLL.Corners.Antisune
                     )
-                
-
-
-        else:
+                else:
+                    print(f"enither sune or antisune case {lastcolor_count2faceidlist=}")
+                    raise Exception
+            elif len(lastcolor_count2faceidlist[1]) == 2:
+                if self.back_faceid(lastcolor_count2faceidlist[1][0]) == lastcolor_count2faceidlist[1][1]:
+                    # side lights only, or T
+                    if self.cube.get(self.connectingCoords_withlastface(lastcolor_count2faceidlist[1][0])[0]) == self.last_color:
+                        faceid = lastcolor_count2faceidlist[1][1]
+                    else:
+                        faceid = lastcolor_count2faceidlist[1][0]
+                    return self.apply_algo(
+                        faceid,
+                        Algo.OLL.Corners.T
+                    )
+                else:
+                    # L
+                    if self.prev_faceid(lastcolor_count2faceidlist[1][0]) == lastcolor_count2faceidlist[1][1]:
+                        faceid = lastcolor_count2faceidlist[1][0]
+                    else:
+                        faceid = lastcolor_count2faceidlist[1][1]
+                    return self.apply_algo(
+                        faceid,
+                        Algo.OLL.Corners.L
+                    )
+        elif len(lastcolor_count2faceidlist[0]) == 4:
             return Moves([], comment="OLL of corners already done.")
+        else:
+            raise Exception("No actual case", lastcolor_count2faceidlist)
+        
+    def solve_OLL(self):
+        return self.solve_OLL_edges() + self.solve_OLL_corners()
+    
+    def check_OLL_edges(self):
+        for pos in Cube3x3.edge_positions:
+            if self.last_face.get(pos) != self.last_color:
+                return False
+        return True
+    
+    def check_OLL_corners(self):
+        for pos in Cube3x3.corner_positions:
+            if self.last_face.get(pos) != self.last_color:
+                return False
+        return True
 
+    def check_OLL(self):
+        return self.check_OLL_edges() and self.check_OLL_corners()
 
                 
 

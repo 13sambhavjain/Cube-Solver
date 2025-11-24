@@ -89,7 +89,11 @@ class CubeStatics():
     @cache
     @staticmethod
     def direction_map(front: FaceId, top: FaceId) -> dict[str, FaceId]:
-        rotate = CubeStatics.side_directions.index(CubeStatics.faceId2direction[front][top])
+        try:
+            rotate = CubeStatics.side_directions.index(CubeStatics.faceId2direction[front][top])
+        except:
+            print(f"{front=}, {top=}")
+            k = input()
         direction_map: dict[str, FaceId] = {
             'U': top,
             'R': CubeStatics.direction2faceId[front][CubeStatics.side_directions[(rotate+1)%4]],
@@ -111,6 +115,8 @@ class CubeStatics():
         def cube_rotation2fronttop(rotation: str, turns: int = 1) -> tuple[FaceId, FaceId]:
             turns %= 4
             nonlocal direction_map
+            front = direction_map['F']
+            top = direction_map['U']
             cube_rotation_map = {
                 ('x', 1): (direction_map['D'], front),
                 ('x', 2): (direction_map['B'], direction_map['D']),
