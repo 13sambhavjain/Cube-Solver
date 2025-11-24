@@ -14,7 +14,7 @@ class LastLayer(BaseSolver3x3):
             faceid:  self.connectingCoords_withlastface(faceid) for faceid in self.side_faceids
         }
         self.last_face = self.cube.state[self.last_faceid]
-        self.front_faceid = Color.green
+        self.random_side_face = self.side_faceids[0]
     
     def prev_faceid(self, faceid: FaceId) -> FaceId:
         rotate = Cube3x3.side_directions.index(Cube3x3.faceId2direction[faceid][self.last_faceid])
@@ -32,7 +32,7 @@ class LastLayer(BaseSolver3x3):
             return [Coords(faceid, x=pos.x, y=y) for y in range(self.cube.size)]
     
     # def dot2cross(self):
-    #     front = self.side_faceids[0] #random doesn't matter
+    #     front = self.random_side_face #random doesn't matter
     #     formula = self.cross_formula1*2 +'U' + self.cross_formula1
     #     moves = self.cube.apply_formula(front, self.last_faceid, formula)
     #     moves.comment = f"Dot before yellow Cross: {formula}"
@@ -48,7 +48,7 @@ class LastLayer(BaseSolver3x3):
             if self.last_face.get(pos) == self.last_color:
                 cross_yellow_pos.append(pos)
         if len(cross_yellow_pos) == 0:
-            return self.apply_algo(self.side_faceids[0], Algo.OLL.Edges.dot_shape)
+            return self.apply_algo(self.random_side_face, Algo.OLL.Edges.dot_shape)
         elif len(cross_yellow_pos) == 4:
             return Moves([], comment="OLL of edges already done.")
         elif len(cross_yellow_pos) == 2:
@@ -68,8 +68,8 @@ class LastLayer(BaseSolver3x3):
             print(f"Len {cross_yellow_pos=} is 3")
             raise NotImplementedError
     
-    def solve_OLL_corners(self):
-        side_face_with_lastcolor: dict[FaceId, Coords] = dict()
+    def solve_OLL_corners(self) -> Moves:
+        side_face_with_lastcolor: dict[FaceId, list[Coords]] = dict()
         for faceid, side_coords in self.connecting_side_face_coords.items():
             sfl = side_face_with_lastcolor[faceid] = list()
             for coords in (side_coords[0], side_coords[-1]):
@@ -141,32 +141,80 @@ class LastLayer(BaseSolver3x3):
                     )
         elif len(lastcolor_count2faceidlist[0]) == 4:
             return Moves([], comment="OLL of corners already done.")
-        else:
-            raise Exception("No actual case", lastcolor_count2faceidlist)
+        raise Exception("No actual case", lastcolor_count2faceidlist)
         
-    def solve_OLL(self):
+    def solve_OLL(self) -> Moves:
         return self.solve_OLL_edges() + self.solve_OLL_corners()
     
-    def check_OLL_edges(self):
+    def check_OLL_edges(self) -> bool:
         for pos in Cube3x3.edge_positions:
             if self.last_face.get(pos) != self.last_color:
                 return False
         return True
     
-    def check_OLL_corners(self):
+    def check_OLL_corners(self) -> bool:
         for pos in Cube3x3.corner_positions:
             if self.last_face.get(pos) != self.last_color:
                 return False
         return True
 
-    def check_OLL(self):
+    def check_OLL(self) -> bool:
         return self.check_OLL_edges() and self.check_OLL_corners()
+    
+    def last_face_move_postPLL(self) -> Moves:
+        otherside1 = next(iter(Cube3x3.corner_other_coords(Coords(self.last_faceid, 0, 0))))
+        other_colorfaceid = Cube3x3.color2faceId(self.cube.get(otherside1))
+        return self.cube.apply_moves(Moves([Cube3x3.move4faceIdchange(self.last_faceid, otherside1.face_id, other_colorfaceid)],
+                     comment="Matching sides post PLL."))
+    
+    def solve_PLL_corners_without_matching(self) -> Moves:
+        correctPLLfaceid = None
+        for faceid, side_coords in self.connecting_side_face_coords.items():
+            if self.cube.get(side_coords[0]) == self.cube.get(side_coords[-1]):
+                if correctPLLfaceid:
+                    return Moves([], "PLL of corners already done.")
 
-                
+                else:
+                    correctPLLfaceid = faceid
+        if correctPLLfaceid == None:
+            return self.apply_algo(self.random_side_face, Algo.PLL.Corners.none_correct)
+        return self.apply_algo(self.back_faceid(correctPLLfaceid), Algo.PLL.Corners.one_pair_correct)
+    
+    def solve_PLL_corners(self) -> Moves:
+        return self.solve_PLL_corners_without_matching() + self.last_face_move_postPLL()
+    
+    def solve_PLL_edges(self) -> Moves:
+        correctPLLfaceid = None
+        for faceid, side_coords in self.connecting_side_face_coords.items():
+            if self.cube.get(side_coords[1]) == self.cube.get(side_coords[-1]):
+                correctPLLfaceid = faceid
+                break
+        if correctPLLfaceid:
+            back_faceid = self.back_faceid(correctPLLfaceid)
+            color = self.cube.get(self.connecting_side_face_coords[back_faceid][1])
+            color_faceid = Cube3x3.color2faceId(color)
+            if back_faceid == color_faceid:
+                return Moves([], "PLL of edges already done.")
+            if self.prev_faceid(back_faceid) == color_faceid:
+                return self.apply_algo(back_faceid, Algo.PLL.Edges.one_shiftright)
+            else:
+                return self.apply_algo(back_faceid, Algo.PLL.Edges.one_shiftleft)
+        else:
+            faceid = self.random_side_face
+            color = self.cube.get(self.connecting_side_face_coords[faceid][1])
+            color_faceid = Cube3x3.color2faceId(color)
+            if self.back_faceid(faceid) == color_faceid:
+                return self.apply_algo(faceid, Algo.PLL.Edges.none_shiftback)
+            elif (prev_faceid:=self.prev_faceid(faceid)) != color_faceid:
+                return self.apply_algo(faceid, Algo.PLL.Edges.none_shiftleft)
+            else:
+                return self.apply_algo(prev_faceid, Algo.PLL.Edges.none_shiftleft)
+        raise NotImplementedError
 
-            
+    def solve_PLL(self) -> Moves:
+        return self.solve_PLL_corners() + self.solve_PLL_edges()
 
-
-        
+    def solve_last_layer(self) -> Moves:
+        return self.solve_OLL() + self.solve_PLL()
 
 

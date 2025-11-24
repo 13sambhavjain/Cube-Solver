@@ -48,6 +48,15 @@ class BaseSolver3x3():
                 if self.cube.state[faceid].get(pos) != face_color:
                     return False
         return True
+    
+    def check_solved(self) -> bool:
+        for faceid in self.cube.state:
+            face_color = Cube3x3.faceId2color(faceid)
+            for x in range(self.cube.size):
+                for y in range(self.cube.size):
+                    if self.cube.state[faceid][x][y] != face_color:
+                        return False
+        return True
 
     
     def checkRaise_start_color_on_startface_coords(self, coords: Coords):

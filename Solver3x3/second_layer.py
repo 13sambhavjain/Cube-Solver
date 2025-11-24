@@ -72,13 +72,9 @@ class SecondLayer(BaseSolver3x3):
                     raise Exception("Issue with finding unplaced edge in 2nd layer")
                 # go back in the while loop to look for the removed edge piece
         return solution_moves
-    
-class FirstSecondLayer(FirstLayer, SecondLayer):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
 
-    def solve_till_second_layer(self):
-        return self.solve_first_layer() + self.solve_second_layer()
+
+    
     
     
 

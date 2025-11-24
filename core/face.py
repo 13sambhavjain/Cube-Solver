@@ -35,6 +35,11 @@ class Position():
 
     def __hash__(self):
         return hash(self.x, self.y)
+    
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, Position):
+            return NotImplemented
+        return self.x == other.x and self.y == other.y
 
 class Face:
     def __init__(self, size: int=3, fill_color: Color = None, grid: list[list[Color]] = None): #type: ignore

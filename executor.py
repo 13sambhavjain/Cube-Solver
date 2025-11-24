@@ -15,17 +15,28 @@ def printcases(cases):
 
 def check_print_result(result):
     if result['fails']:
-        print("Failed")
+        print("Fails = ")
         printcases(result["fails"])
+        print("Failed")
         return
     else:
+        print("Passes = ")
         printcases(result["passes"])
+        print("Passed")
 
 
 def main():
-    result = testOLLcorners(numberOfCases=10000, breakAtFirstFail=True)
+    result = test_solve_cube(numberOfCases=1000, breakAtFirstFail=True)
     check_print_result(result)
-    
+    # c = Cube3x3()
+    # solver = LastLayer(c, w)
+    # print(solver.apply_algo(FaceId.green, Algo.OLL.Edges.dot_shape))
+    # print(solver.apply_algo(FaceId.red, Algo.OLL.Corners.Sune))
+    # print(c)
+    # print(moves:= solver.solve_OLL() + solver.solve_PLL())
+    # print(moves.comment)
+    # print(solver.check_solved())
+    # print(c)
 
 if __name__ == "__main__":
     main()
