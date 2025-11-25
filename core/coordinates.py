@@ -59,8 +59,7 @@ class Coords():
             return self.face_id == other.face_id and self.x == other.x and self.y == other.y
         elif isinstance(other, tuple) and len(other) == 3:
             return self.face_id == other[0] and self.x == other[1] and self.y == other[2]
-        else:
-            return NotImplemented
+        return NotImplemented
         
     def __hash__(self):
         return hash((self.face_id, self.x, self.y))

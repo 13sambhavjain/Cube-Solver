@@ -5,7 +5,7 @@ class FirstCross(BaseSolver3x3):
         super().__init__(*args, **kwargs)
         self.placed_edge_colors: set = set()
     
-    def startedge_on_startface(self, coords: Coords, check: bool=False) -> Moves:
+    def _edge_on_top(self, coords: Coords, check: bool=False) -> Moves:
         if check:
             self.checkRaise_start_color_on_startface_coords(coords)
         otherSide = Cube3x3.EdgeOtherSide(coords)
@@ -28,11 +28,11 @@ class FirstCross(BaseSolver3x3):
             moves = Moves(
                 moves=[self.cube.double_rotate(otherSide.face_id)], 
                 comment=f"Putting the wrongply paced {self.start_color=} with the last color."
-            ) + self.startedge_on_lastface(new_coords) # color on bottom places the edge in set
+            ) + self._edge_on_bottom(new_coords) # color on bottom places the edge in set
             # already applying moves in double rotate and color_on bottom
             return moves
     
-    def startedge_on_lastface(self, coords: Coords, check: bool=False) -> Moves:
+    def _edge_on_bottom(self, coords: Coords, check: bool=False) -> Moves:
         if check:
             self.checkRaise_start_color_on_lastface_coords(coords)
 
@@ -48,7 +48,7 @@ class FirstCross(BaseSolver3x3):
         self.placed_edge_colors.add(otherColor)
         return moves
     
-    def startedge_on_sideface(self, coords: Coords, check: bool=False) -> Moves:
+    def _edge_on_side(self, coords: Coords, check: bool=False) -> Moves:
         if check:
             self.checkRaise_start_color_on_sideface_coords(coords)
         otherSide = Cube3x3.EdgeOtherSide(coords)
@@ -111,11 +111,11 @@ class FirstCross(BaseSolver3x3):
             for coords in Cube3x3.edge_coords():
                 if self.cube.get(coords) == self.start_color:
                     if coords.face_id == self.start_faceid:
-                        first_cross_moves += self.startedge_on_startface(coords)
+                        first_cross_moves += self._edge_on_top(coords)
                     elif coords.face_id == self.last_faceid:
-                        first_cross_moves += self.startedge_on_lastface(coords)
+                        first_cross_moves += self._edge_on_bottom(coords)
                     else:
-                        first_cross_moves += self.startedge_on_sideface(coords)
+                        first_cross_moves += self._edge_on_side(coords)
                     if len(self.placed_edge_colors) == len(Cube3x3.edge_positions):
                         return first_cross_moves
         else:
