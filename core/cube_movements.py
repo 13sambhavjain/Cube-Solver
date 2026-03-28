@@ -70,8 +70,8 @@ class CubeMovements(CubeStatics):
         else:
             raise ValueError(f"Invalid number of turns in move: {move}")
     
-    def apply_randomScramble(self, limit: int = 20) -> Moves:
-        moves = self.get_randomScramble(limit)
+    def apply_randomScramble(self, limit: int = 20, effective_limit=False) -> Moves:
+        moves = self.get_randomScramble(limit, efficient=effective_limit)
         return self.apply_moves(moves)
     
 

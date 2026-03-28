@@ -6,6 +6,6 @@ def print2Cube3x3(printed_cube3x3: str) -> Cube3x3:
     i2color = dict()
     for color in Colors():
         i2color[f'{color:i}'.strip()] = color
-    state
+    # state
 
     return Cube3x3()

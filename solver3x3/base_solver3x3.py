@@ -13,7 +13,7 @@ class BaseSolver3x3():
         self.last_color: Color = Cube3x3.faceId2color(self.last_faceid)
 
     def __getattr__(self, name):
-        return self.cube.name
+        return getattr(self.cube, name)
     
     def check_first_cross(self) -> bool:
         face = self.cube.state[self.start_faceid]

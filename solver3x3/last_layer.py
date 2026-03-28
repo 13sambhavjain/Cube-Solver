@@ -23,7 +23,6 @@ class LastLayer(BaseSolver3x3):
     def back_faceid(self, faceid: FaceId) -> FaceId:
         return Cube3x3.direction2faceId[faceid][back]
 
-    @cache
     def connectingCoords_withlastface(self, faceid: FaceId) -> list[Coords]:
         pos: Position= Cube3x3.sideDirection2edgePosition[Cube3x3.faceId2direction[faceid][self.last_faceid]]
         if pos.x&1:

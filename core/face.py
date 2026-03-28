@@ -34,7 +34,7 @@ class Position():
         return f'{self.__class__.__name__}({', '.join(f'{k}={v!r}' for k, v in vars(self).items())})'
 
     def __hash__(self):
-        return hash(self.x, self.y)
+        return hash((self.x, self.y))
     
     def __eq__(self, other) -> bool:
         if not isinstance(other, Position):

@@ -79,9 +79,9 @@ class CubeStatics():
         elif direction == up:
             ans = top
         elif direction == down:
-            ams = CubeStatics.direction2faceId[top][back]
+            ans = CubeStatics.direction2faceId[top][back]
         elif direction == back:
-            ams = CubeStatics.direction2faceId[front][back]
+            ans = CubeStatics.direction2faceId[front][back]
         else:
             ans = front        
         return ans
@@ -91,9 +91,8 @@ class CubeStatics():
     def direction_map(front: FaceId, top: FaceId) -> dict[str, FaceId]:
         try:
             rotate = CubeStatics.side_directions.index(CubeStatics.faceId2direction[front][top])
-        except:
-            print(f"{front=}, {top=}")
-            k = input()
+        except Exception as e:
+            raise ValueError(f"Invalid front/top pair: {front=}, {top=}") from e
         direction_map: dict[str, FaceId] = {
             'U': top,
             'R': CubeStatics.direction2faceId[front][CubeStatics.side_directions[(rotate+1)%4]],
@@ -210,8 +209,10 @@ class CubeStatics():
         }
     
     @staticmethod
-    def get_randomScramble(limit: int = 20) -> Moves:
-        moves: Moves = Moves()
+    def get_randomScramble(limit: int = 20, efficient=False) -> Moves:
+        moves: Moves = Moves(efficient=True)
         for _ in range(limit):
+            moves.append(Move(faceId=random.choice(CubeStatics.faceIds), turns=random.choice([1,2,3])))
+        while len(moves) < limit:
             moves.append(Move(faceId=random.choice(CubeStatics.faceIds), turns=random.choice([1,2,3])))
         return moves

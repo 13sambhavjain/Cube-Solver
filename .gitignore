@@ -6,3 +6,4 @@
 *mypy_cache/
 .venv/
 .DS_Store
+project_backup.zip

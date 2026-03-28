@@ -5,12 +5,13 @@ import random
 
 def test(solver_class: type[object], func: Callable, check_func: Callable,
         numberOfCases: int=1000, scrambleLimit: int= 10, breakAtFirstFail: bool=False,
-        getpasses: int = 10) -> dict[str,list[dict[str,Moves]]]:
+        getpasses: int = 10,
+        random_start_face=False) -> dict[str,list[dict[str,Moves]]]:
     fails:list[dict[str,Moves]] = []
     passes:list[dict[str,Moves]]= []
     for _ in range(numberOfCases):
-        c = Cube3x3()
-        scram = c.apply_randomScramble(scrambleLimit)
+        c = Cube3x3(start_faceId = random.choice(Cube3x3.faceIds) if random_start_face else w)
+        scram = c.apply_randomScramble(scrambleLimit, True)
         solver = solver_class(c, g, True) #type: ignore
         moves = func(solver) #type: ignore
         if not check_func(solver): #type: ignore
@@ -78,9 +79,9 @@ def testOLLcorners(
             passes.append(dict(scramble=scram, solution=moves))
     return dict(fails=fails, passes=passes)
 
-def test_solve_cube(*,numberOfCases: int=1000, scrambleLimit: int= 10, breakAtFirstFail: bool=False, getpasses: int = 10) -> dict[str,list[dict[str,Moves]]]:
+def test_solve_cube(*,numberOfCases: int=1000, scrambleLimit: int= 10, breakAtFirstFail: bool=False, getpasses: int = 10, random_start_face=False) -> dict[str,list[dict[str,Moves]]]:
     return test(Solver3x3, Solver3x3.solve_cube, FirstCorners.check_solved,
-                numberOfCases, scrambleLimit, breakAtFirstFail, getpasses)
+                numberOfCases, scrambleLimit, breakAtFirstFail, getpasses, random_start_face)
 
 def test_oll_pll(
         numberOfCases: int=1000, scrambleLimit: int= 10, breakAtFirstFail: bool=False,

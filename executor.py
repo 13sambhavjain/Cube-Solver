@@ -26,7 +26,7 @@ def check_print_result(result):
 
 
 def main():
-    result = test_solve_cube(numberOfCases=1000, breakAtFirstFail=True)
+    result = test_solve_cube(scrambleLimit=30, numberOfCases=10000, breakAtFirstFail=True, random_start_face=True)
     check_print_result(result)
     # c = Cube3x3()
     # solver = LastLayer(c, w)
