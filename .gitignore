@@ -1,7 +1,8 @@
-__pycache__/
+*__pycache__/
 *.pyc
 *.pyo
 *.pyd
 *.cache
-.mypy_cache/
+*mypy_cache/
 .venv/
+.DS_Store
